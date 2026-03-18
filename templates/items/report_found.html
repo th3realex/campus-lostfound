@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Report Found Item{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card p-4">
+      <h4 class="fw-bold mb-1"><i class="fas fa-hand-holding text-success me-2"></i>Report a Found Item</h4>
+      <p class="text-muted mb-4">Thank you for your honesty! Use a <strong>vague public description</strong> to prevent fraudulent claims — put full details in the private section.</p>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label fw-semibold">Item Title *</label>{{ form.title }}<div class="form-text">Keep vague e.g. "Electronic device" not "Samsung S21"</div></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Category *</label>{{ form.category }}</div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Date Found *</label>{{ form.date_found }}</div>
+          <div class="col-md-6"><label class="form-label fw-semibold">General Location *</label>{{ form.location_found }}</div>
+        </div>
+
+        <!-- Public vs Private description split -->
+        <div class="row g-3 mt-1">
+          <div class="col-12">
+            <label class="form-label fw-semibold text-success"><i class="fas fa-globe me-1"></i>{{ form.public_description.label }} *</label>
+            {{ form.public_description }}
+            <div class="form-text text-success">This is shown to everyone. Keep it vague — no serial numbers, exact colours, or specific details.</div>
+          </div>
+          <div class="col-12 p-3 rounded-3 border border-warning ms-2 me-2" style="background:#fffbeb;">
+            <label class="form-label fw-semibold text-warning"><i class="fas fa-lock me-1"></i>{{ form.private_description.label }} *</label>
+            {{ form.private_description }}
+            <div class="form-text">Full details — only admin and the verified owner will see this.</div>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-1 p-3 rounded-3 border border-warning" style="background:#fffbeb;">
+          <h6 class="fw-bold text-warning mb-0"><i class="fas fa-lock me-2"></i>Private Details (admin only)</h6>
+          <p class="text-muted small mb-2">These are kept confidential and used to verify the owner's identity.</p>
+          <div class="col-md-6"><label class="form-label fw-semibold">{{ form.location_detail.label }}</label>{{ form.location_detail }}</div>
+          <div class="col-md-6"><label class="form-label fw-semibold">{{ form.current_holding.label }}</label>{{ form.current_holding }}</div>
+          <div class="col-12"><label class="form-label fw-semibold">{{ form.verif_color.label }}</label>{{ form.verif_color }}</div>
+          <div class="col-12"><label class="form-label fw-semibold">{{ form.verif_distinguishing.label }}</label>{{ form.verif_distinguishing }}</div>
+          <div class="col-12"><label class="form-label fw-semibold">{{ form.verif_secret.label }}</label>{{ form.verif_secret }}</div>
+        </div>
+
+        <div class="row g-3 mt-1">
+          <div class="col-md-6"><label class="form-label fw-semibold">Item Photo (optional)</label>{{ form.image }}</div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Contact Email</label>{{ form.contact_email }}</div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Contact Phone</label>{{ form.contact_phone }}</div>
+        </div>
+
+        <div class="d-flex gap-3 mt-4">
+          <button type="submit" class="btn btn-success px-4 fw-bold"><i class="fas fa-paper-plane me-2"></i>Submit Found Report</button>
+          <a href="{% url 'home' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

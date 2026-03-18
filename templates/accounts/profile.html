@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Profile — Campus Lost & Found{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card p-4">
+      <h4 class="fw-bold mb-4"><i class="fas fa-user-cog text-primary me-2"></i>My Profile</h4>
+      <div class="mb-3 p-3 rounded-3" style="background:#f1f5f9;">
+        <span class="badge bg-primary me-2">{{ user.get_role_display }}</span>
+        {% if user.student_id %}<span class="badge bg-secondary">ID: {{ user.student_id }}</span>{% endif %}
+      </div>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          {% for field in form %}
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary mt-4 px-4 fw-bold">Save Changes</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

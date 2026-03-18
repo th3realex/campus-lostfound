@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Create Manual Match{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card p-4">
+      <h4 class="fw-bold mb-4"><i class="fas fa-plus-circle text-primary me-2"></i>Create Manual Match</h4>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Select Lost Item</label>
+          <select name="lost_item" class="form-select" required>
+            <option value="">-- Select Lost Item --</option>
+            {% for item in lost_items %}
+            <option value="{{ item.pk }}">{{ item.title }} — {{ item.get_category_display }} ({{ item.reporter.get_full_name }}) — {{ item.date_lost }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Select Found Item</label>
+          <select name="found_item" class="form-select" required>
+            <option value="">-- Select Found Item --</option>
+            {% for item in found_items %}
+            <option value="{{ item.pk }}">{{ item.title }} — {{ item.get_category_display }} ({{ item.finder.get_full_name }}) — {{ item.date_found }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Notes (optional)</label>
+          <textarea name="notes" class="form-control" rows="3" placeholder="Explain why you think these match..."></textarea>
+        </div>
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn btn-primary px-4 fw-bold"><i class="fas fa-link me-2"></i>Create Match</button>
+          <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

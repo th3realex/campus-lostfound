@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Found Items{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0"><i class="fas fa-hand-holding text-success me-2"></i>Found Items</h4>
+  {% if user.is_authenticated %}<a href="{% url 'report_found' %}" class="btn btn-success fw-bold"><i class="fas fa-plus me-2"></i>Report Found Item</a>{% endif %}
+</div>
+<div class="alert alert-warning d-flex align-items-start gap-3 mb-4">
+  <i class="fas fa-eye-slash fa-lg mt-1"></i>
+  <div><strong>Details Hidden:</strong> Specific details of found items are intentionally withheld from the public to prevent fraudulent claims. If you lost something, <a href="{% url 'report_lost' %}">report it here</a> and admin will verify ownership privately.</div>
+</div>
+<div class="card p-3 mb-4">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-5">{{ form.q }}</div>
+    <div class="col-md-3">{{ form.category }}</div>
+    <div class="col-md-3">{{ form.location }}</div>
+    <div class="col-md-1"><button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i></button></div>
+  </form>
+</div>
+<div class="row row-cols-1 row-cols-md-3 g-3">
+  {% for item in items %}
+  <div class="col">
+    <div class="card h-100">
+      <!-- Never show found item image publicly -->
+      <div class="item-img-placeholder">
+        <div class="text-center">
+          <i class="fas fa-eye-slash fa-2x text-muted mb-2 d-block"></i>
+          <small class="text-muted">Photo hidden for security</small>
+        </div>
+      </div>
+      <div class="card-body p-3">
+        <span class="badge bg-success-subtle text-success rounded-pill mb-2">{{ item.get_category_display }}</span>
+        <h6 class="fw-bold mb-1">{{ item.title }}</h6>
+        <!-- Only public description — deliberately vague -->
+        <p class="text-muted small mb-2">{{ item.public_description|truncatechars:100 }}</p>
+        <div class="text-muted small"><i class="fas fa-map-marker-alt me-1"></i>{{ item.get_location_found_display }}</div>
+        <div class="text-muted small mb-3"><i class="fas fa-calendar me-1"></i>{{ item.date_found }}</div>
+        <div class="alert alert-light py-2 px-3 small mb-2">
+          <i class="fas fa-info-circle me-1 text-primary"></i>
+          Is this yours? <a href="{% url 'report_lost' %}">Report your lost item</a> — admin will verify and contact you.
+        </div>
+        <a href="{% url 'found_item_detail' item.pk %}" class="btn btn-outline-secondary btn-sm w-100">More Info</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-center py-5 text-muted"><i class="fas fa-box-open fa-3x mb-3 d-block"></i>No found items reported.</div>
+  {% endfor %}
+</div>
+{% endblock %}

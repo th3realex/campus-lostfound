@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-4"><i class="fas fa-tachometer-alt text-primary me-2"></i>Admin Dashboard</h4>
+
+{% if high_risk %}
+<div class="alert alert-danger mb-4">
+  <h6 class="fw-bold mb-2"><i class="fas fa-exclamation-triangle me-2"></i>🚨 {{ high_risk.count }} High-Risk Match(es) Need Immediate Review</h6>
+  {% for match in high_risk %}
+  <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+    <span class="small">Match #{{ match.pk }}: <strong>{{ match.lost_item.title }}</strong> vs <strong>{{ match.found_item.title }}</strong></span>
+    <a href="{% url 'match_detail' match.pk %}" class="btn btn-danger btn-sm">Review Now</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="row g-3 mb-5">
+  <div class="col-md-3"><div class="card p-4 text-center border-start border-danger border-4"><div class="fs-2 fw-bold text-danger">{{ all_lost.count }}</div><div class="text-muted">Lost Reports</div><a href="{% url 'lost_items' %}" class="btn btn-outline-danger btn-sm mt-2">View All</a></div></div>
+  <div class="col-md-3"><div class="card p-4 text-center border-start border-success border-4"><div class="fs-2 fw-bold text-success">{{ all_found.count }}</div><div class="text-muted">Found Reports</div><a href="{% url 'found_items' %}" class="btn btn-outline-success btn-sm mt-2">View All</a></div></div>
+  <div class="col-md-3"><div class="card p-4 text-center border-start border-warning border-4"><div class="fs-2 fw-bold text-warning">{{ pending_matches.count }}</div><div class="text-muted">Pending Matches</div><a href="{% url 'admin_matches' %}?status=pending" class="btn btn-outline-warning btn-sm mt-2">Review</a></div></div>
+  <div class="col-md-3"><div class="card p-4 text-center border-start border-danger border-4"><div class="fs-2 fw-bold text-danger">{{ high_risk.count }}</div><div class="text-muted">High Risk Matches</div><a href="{% url 'admin_matches' %}?risk=high" class="btn btn-outline-danger btn-sm mt-2">View</a></div></div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="fw-bold mb-0"><i class="fas fa-clock text-warning me-2"></i>Pending Matches</h5>
+  <a href="{% url 'create_manual_match' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-2"></i>Manual Match</a>
+</div>
+{% if pending_matches %}
+<div class="table-responsive card p-0 mb-5">
+  <table class="table table-hover mb-0 align-middle">
+    <thead class="table-light">
+      <tr><th>Lost Item</th><th>Found Item</th><th>Score</th><th>Fraud Risk</th><th>Viewed Before?</th><th>Date</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for match in pending_matches %}
+      <tr class="{% if match.fraud_risk == 'high' %}table-danger{% elif match.fraud_risk == 'medium' %}table-warning{% endif %}">
+        <td><a href="{% url 'lost_item_detail' match.lost_item.pk %}">{{ match.lost_item.title }}</a><br><small class="text-muted">{{ match.lost_item.reporter.get_full_name }}</small></td>
+        <td><a href="{% url 'found_item_detail' match.found_item.pk %}">{{ match.found_item.title }}</a><br><small class="text-muted">{{ match.found_item.finder.get_full_name }}</small></td>
+        <td><div class="score-bar" style="width:70px;"><div class="score-fill" style="width:{{ match.match_score }}%;"></div></div><small>{{ match.match_score }}%</small></td>
+        <td><span class="badge {% if match.fraud_risk == 'high' %}bg-danger{% elif match.fraud_risk == 'medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">{{ match.get_fraud_risk_display }}</span></td>
+        <td class="small {% if match.reporter_viewed_found_before_reporting %}text-danger fw-bold{% else %}text-success{% endif %}">{% if match.reporter_viewed_found_before_reporting %}⚠️ YES{% else %}✓ No{% endif %}</td>
+        <td><small>{{ match.created_at|date:"M d" }}</small></td>
+        <td><a href="{% url 'match_detail' match.pk %}" class="btn btn-sm btn-outline-info"><i class="fas fa-eye me-1"></i>Review</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card p-5 text-center text-muted mb-5"><i class="fas fa-check-circle fa-3x text-success mb-3 d-block"></i><p>No pending matches — all caught up!</p></div>
+{% endif %}
+{% endblock %}

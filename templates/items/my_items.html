@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}My Items{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-4"><i class="fas fa-list text-primary me-2"></i>My Items</h4>
+<ul class="nav nav-tabs mb-4" id="myTab">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#lost">Lost Items ({{ my_lost.count }})</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#found">Found Items ({{ my_found.count }})</a></li>
+</ul>
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="lost">
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+      {% for item in my_lost %}
+      <div class="col">
+        <div class="card h-100 p-3">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <span class="badge bg-danger-subtle text-danger rounded-pill">{{ item.get_category_display }}</span>
+              <span class="badge {% if item.status == 'active' %}bg-success{% elif item.status == 'matched' %}bg-warning text-dark{% else %}bg-secondary{% endif %} rounded-pill ms-1">{{ item.get_status_display }}</span>
+            </div>
+            <small class="text-muted">{{ item.created_at|date:"M d" }}</small>
+          </div>
+          <h6 class="fw-bold mt-2 mb-1">{{ item.title }}</h6>
+          <div class="text-muted small mb-1"><i class="fas fa-map-marker-alt me-1"></i>{{ item.get_location_lost_display }}</div>
+          <div class="text-muted small mb-3"><i class="fas fa-calendar me-1"></i>{{ item.date_lost }}</div>
+          {% if item.matches.exists %}
+          <div class="alert alert-warning py-2 px-3 small mb-2">
+            <i class="fas fa-link me-1"></i>{{ item.matches.count }} match(es) found
+          </div>
+          {% endif %}
+          <a href="{% url 'lost_item_detail' item.pk %}" class="btn btn-outline-danger btn-sm">View</a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center text-muted py-4">
+        <p>No lost items reported yet.</p>
+        <a href="{% url 'report_lost' %}" class="btn btn-danger btn-sm">Report Lost Item</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="tab-pane fade" id="found">
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+      {% for item in my_found %}
+      <div class="col">
+        <div class="card h-100 p-3">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <span class="badge bg-success-subtle text-success rounded-pill">{{ item.get_category_display }}</span>
+              <span class="badge {% if item.status == 'available' %}bg-success{% elif item.status == 'matched' %}bg-warning text-dark{% else %}bg-secondary{% endif %} rounded-pill ms-1">{{ item.get_status_display }}</span>
+            </div>
+            <small class="text-muted">{{ item.created_at|date:"M d" }}</small>
+          </div>
+          <h6 class="fw-bold mt-2 mb-1">{{ item.title }}</h6>
+          <div class="text-muted small mb-1"><i class="fas fa-map-marker-alt me-1"></i>{{ item.get_location_found_display }}</div>
+          <div class="text-muted small mb-3"><i class="fas fa-calendar me-1"></i>{{ item.date_found }}</div>
+          {% if item.matches.exists %}
+          <div class="alert alert-warning py-2 px-3 small mb-2">
+            <i class="fas fa-link me-1"></i>{{ item.matches.count }} match(es)
+          </div>
+          {% endif %}
+          <a href="{% url 'found_item_detail' item.pk %}" class="btn btn-outline-success btn-sm">View</a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center text-muted py-4">
+        <p>No found items reported yet.</p>
+        <a href="{% url 'report_found' %}" class="btn btn-success btn-sm">Report Found Item</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
