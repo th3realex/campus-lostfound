@@ -1,61 +1,65 @@
 {% extends 'base.html' %}
-{% block title %}{{ item.title }} — Lost Item{% endblock %}
+{% block title %}{{ item.title }}{% endblock %}
 {% block content %}
-<div class="row">
-  <div class="col-md-8">
-    <div class="card p-4 mb-4">
-      <div class="mb-3">
-        <span class="badge bg-danger-subtle text-danger rounded-pill">{{ item.get_category_display }}</span>
-        <span class="badge bg-secondary-subtle text-secondary rounded-pill ms-1">{{ item.get_status_display }}</span>
-        {% if item.is_flagged %}<span class="badge bg-danger ms-1">🚩 Flagged</span>{% endif %}
-        <h3 class="fw-bold mt-2 mb-0">{{ item.title }}</h3>
-      </div>
-      <h6 class="fw-bold text-muted text-uppercase small">Public Description</h6>
-      <p>{{ item.public_description }}</p>
-
-      {% if show_private %}
-      <div class="p-3 rounded-3 mt-3" style="background:#fef2f2; border:1px dashed #fca5a5;">
-        <h6 class="fw-bold text-danger mb-3"><i class="fas fa-lock me-2"></i>Private Details (You / Admin only)</h6>
-        <p class="mb-2"><strong>Full Description:</strong> {{ item.private_description }}</p>
-        {% if item.verif_q1 %}<div class="mb-1"><span class="badge bg-warning text-dark me-2">Secret 1</span>{{ item.verif_q1 }}</div>{% endif %}
-        {% if item.verif_q2 %}<div class="mb-1"><span class="badge bg-warning text-dark me-2">Secret 2</span>{{ item.verif_q2 }}</div>{% endif %}
-        {% if item.verif_q3 %}<div class="mb-1"><span class="badge bg-warning text-dark me-2">Secret 3</span>{{ item.verif_q3 }}</div>{% endif %}
-        {% if item.proof_of_ownership %}
-        <div class="mt-2"><strong class="small">Proof of Ownership:</strong><br>
-        <img src="{{ item.proof_of_ownership.url }}" class="rounded-3 mt-1" style="max-height:150px;" alt="Proof"></div>
+<a href="{% url 'lost_items' %}" class="btn btn-outline btn-sm mb-3 animate-up"><i class="fas fa-arrow-left"></i> Back</a>
+<div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;" class="animate-up">
+  <div>
+    <div class="card">
+      <div class="card-body">
+        <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:1rem;">
+          <div>
+            <span class="badge badge-danger mb-2">{{ item.get_category_display }}</span>
+            <span class="badge badge-muted mb-2" style="margin-left:6px;">{{ item.get_status_display }}</span>
+            <h2 style="font-family:var(--font-display);font-weight:800;font-size:1.75rem;">{{ item.title }}</h2>
+          </div>
+        </div>
+        {% if item.image %}<img src="{{ item.image.url }}" style="width:100%;height:300px;object-fit:cover;border-radius:var(--radius);margin-bottom:1.5rem;" alt="">{% endif %}
+        <div class="text-muted small fw-bold" style="text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Description</div>
+        <p style="line-height:1.8;color:var(--text);">{{ item.description }}</p>
+        <div class="divider"></div>
+        <div class="grid grid-2">
+          <div class="card card-flat" style="padding:1rem;">
+            <div class="small text-muted mb-1">Location Lost</div>
+            <div style="font-weight:600;"><i class="fas fa-map-marker-alt text-danger" style="margin-right:6px;"></i>{{ item.get_location_lost_display }}</div>
+            {% if item.location_detail %}<div class="small text-muted mt-1">{{ item.location_detail }}</div>{% endif %}
+          </div>
+          <div class="card card-flat" style="padding:1rem;">
+            <div class="small text-muted mb-1">Date Lost</div>
+            <div style="font-weight:600;"><i class="fas fa-calendar text-primary" style="margin-right:6px;"></i>{{ item.date_lost }}</div>
+          </div>
+        </div>
+        {% if item.reward %}
+        <div style="background:rgba(247,200,79,0.1);border:1px solid rgba(247,200,79,0.2);border-radius:var(--radius-sm);padding:1rem;margin-top:1rem;">
+          <i class="fas fa-gift text-warning" style="margin-right:8px;"></i><strong>Reward:</strong> {{ item.reward }}
+        </div>
         {% endif %}
       </div>
-      {% endif %}
-
-      <div class="row g-3 mt-3">
-        <div class="col-md-6"><div class="p-3 rounded-3" style="background:#f1f5f9;"><div class="text-muted small">Location Lost</div><div class="fw-semibold"><i class="fas fa-map-marker-alt text-danger me-2"></i>{{ item.get_location_lost_display }}</div></div></div>
-        <div class="col-md-6"><div class="p-3 rounded-3" style="background:#f1f5f9;"><div class="text-muted small">Date Lost</div><div class="fw-semibold"><i class="fas fa-calendar text-primary me-2"></i>{{ item.date_lost }}</div></div></div>
-        {% if item.reward %}<div class="col-12"><div class="p-3 rounded-3" style="background:#fef3c7;"><i class="fas fa-gift text-warning me-2"></i><strong>Reward:</strong> {{ item.reward }}</div></div>{% endif %}
-      </div>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card p-4 mb-3">
-      <h6 class="fw-bold mb-3"><i class="fas fa-info-circle me-2 text-info"></i>Report Info</h6>
-      <div class="text-muted small">Reported by</div>
-      <div class="fw-semibold mb-2">{{ item.reporter.get_full_name }}</div>
-      <div class="text-muted small">Date submitted</div>
-      <div class="fw-semibold mb-2">{{ item.created_at|date:"N j, Y" }}</div>
-      <div class="text-muted small">Status</div>
-      <div class="fw-semibold">{{ item.get_status_display }}</div>
-    </div>
-    {% if item.matches.exists and show_private %}
-    <div class="card p-4">
-      <h6 class="fw-bold mb-2"><i class="fas fa-link text-warning me-2"></i>Matches</h6>
-      {% for m in item.matches.all %}
-      <div class="small mb-1">
-        <span class="badge {% if m.status == 'approved' %}bg-success{% elif m.status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ m.get_status_display }}</span>
-        {{ m.found_item.title }}
+  <div style="display:flex;flex-direction:column;gap:1rem;">
+    <div class="card">
+      <div class="card-body">
+        <div class="small fw-bold text-muted" style="text-transform:uppercase;letter-spacing:0.5px;margin-bottom:1rem;">Reporter</div>
+        <div style="font-weight:700;font-size:1rem;">{{ item.reporter.get_full_name }}</div>
+        {% if item.reporter.student_id %}<div class="small text-muted">ID: {{ item.reporter.student_id }}</div>{% endif %}
+        {% if item.reporter.department %}<div class="small text-muted">{{ item.reporter.department }}</div>{% endif %}
+        {% if item.contact_email or item.contact_phone %}
+        <div class="divider"></div>
+        <div class="small fw-bold text-muted" style="text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.75rem;">Contact</div>
+        {% if item.contact_email %}<div class="small mb-1"><i class="fas fa-envelope text-muted" style="margin-right:8px;width:14px;"></i>{{ item.contact_email }}</div>{% endif %}
+        {% if item.contact_phone %}<div class="small"><i class="fas fa-phone text-muted" style="margin-right:8px;width:14px;"></i>{{ item.contact_phone }}</div>{% endif %}
+        {% endif %}
       </div>
-      {% endfor %}
     </div>
-    {% endif %}
+    <div class="card">
+      <div class="card-body">
+        <div class="small fw-bold text-muted" style="text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.75rem;">Report Info</div>
+        <div class="small text-muted">Reported on</div>
+        <div style="font-weight:600;margin-bottom:0.75rem;">{{ item.created_at|date:"N j, Y" }}</div>
+        <div class="small text-muted">Status</div>
+        <span class="badge {% if item.status == 'active' %}badge-success{% elif item.status == 'matched' %}badge-warning{% else %}badge-muted{% endif %}">{{ item.get_status_display }}</span>
+      </div>
+    </div>
   </div>
 </div>
-<a href="{% url 'lost_items' %}" class="btn btn-outline-secondary mt-3"><i class="fas fa-arrow-left me-2"></i>Back to Lost Items</a>
 {% endblock %}

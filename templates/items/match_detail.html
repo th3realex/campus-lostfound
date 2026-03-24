@@ -1,136 +1,123 @@
 {% extends 'base.html' %}
 {% block title %}Match #{{ match.pk }} Review{% endblock %}
 {% block content %}
-<h4 class="fw-bold mb-2"><i class="fas fa-link text-primary me-2"></i>Match #{{ match.pk }} — Admin Review</h4>
+<a href="{% url 'admin_matches' %}" class="btn btn-outline btn-sm mb-3 animate-up"><i class="fas fa-arrow-left"></i> Back to Matches</a>
+<div class="section-head animate-up">
+  <div><div class="section-title">Match #{{ match.pk }} Review</div></div>
+  <span class="badge {% if match.status == 'pending' %}badge-warning{% elif match.status == 'approved' %}badge-success{% elif match.status == 'rejected' %}badge-danger{% else %}badge-muted{% endif %}" style="font-size:0.9rem;padding:8px 16px;">{{ match.get_status_display }}</span>
+</div>
 
-<!-- Fraud Risk Banner -->
 {% if match.fraud_risk == 'high' %}
-<div class="alert alert-danger d-flex align-items-start mb-4">
-  <i class="fas fa-exclamation-triangle fa-2x me-3 mt-1"></i>
-  <div>
-    <h6 class="fw-bold mb-2">🚨 HIGH FRAUD RISK — Review Carefully</h6>
-    {% for flag in match.fraud_flags.splitlines %}{% if flag %}<div class="mb-1">{{ flag }}</div>{% endif %}{% endfor %}
-  </div>
+<div class="fraud-high mb-4 animate-up">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;"><i class="fas fa-exclamation-triangle text-danger fa-lg"></i><span style="font-family:var(--font-display);font-weight:700;color:var(--danger);">🚨 HIGH FRAUD RISK — Review Carefully</span></div>
+  {% for flag in match.fraud_flags.splitlines %}{% if flag %}<div class="small mb-1">{{ flag }}</div>{% endif %}{% endfor %}
 </div>
 {% elif match.fraud_risk == 'medium' %}
-<div class="alert alert-warning d-flex align-items-start mb-4">
-  <i class="fas fa-exclamation-circle fa-2x me-3 mt-1"></i>
-  <div>
-    <h6 class="fw-bold mb-2">⚠️ MEDIUM RISK — Verify carefully before approving</h6>
-    {% for flag in match.fraud_flags.splitlines %}{% if flag %}<div class="mb-1">{{ flag }}</div>{% endif %}{% endfor %}
-  </div>
+<div class="fraud-medium mb-4 animate-up">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;"><i class="fas fa-exclamation-circle text-warning fa-lg"></i><span style="font-family:var(--font-display);font-weight:700;color:var(--warning);">⚠️ MEDIUM RISK — Verify carefully</span></div>
+  {% for flag in match.fraud_flags.splitlines %}{% if flag %}<div class="small mb-1">{{ flag }}</div>{% endif %}{% endfor %}
 </div>
 {% elif match.fraud_flags %}
-<div class="alert alert-info mb-4">
-  <h6 class="fw-bold mb-2">ℹ️ Notes</h6>
-  {% for flag in match.fraud_flags.splitlines %}{% if flag %}<div>{{ flag }}</div>{% endif %}{% endfor %}
+<div class="fraud-low mb-4 animate-up">
+  {% for flag in match.fraud_flags.splitlines %}{% if flag %}<div class="small mb-1">{{ flag }}</div>{% endif %}{% endfor %}
 </div>
 {% endif %}
 
-<div class="row">
-  <div class="col-md-8">
-    <!-- Side by side comparison -->
-    <div class="row g-4 mb-4">
-      <div class="col-md-6">
-        <div class="card p-4 border-danger border-2 h-100">
-          <h6 class="text-danger fw-bold mb-3"><i class="fas fa-minus-circle me-2"></i>LOST ITEM (Claimant)</h6>
-          <h6 class="fw-bold">{{ match.lost_item.title }}</h6>
-          <div class="mb-2"><span class="badge bg-secondary">{{ match.lost_item.get_category_display }}</span></div>
-          <p class="text-muted small mb-2"><strong>Description:</strong> {{ match.lost_item.description }}</p>
-          <p class="text-muted small mb-1"><i class="fas fa-map-marker-alt me-1"></i>{{ match.lost_item.get_location_lost_display }}</p>
-          <p class="text-muted small mb-2"><i class="fas fa-calendar me-1"></i>{{ match.lost_item.date_lost }}</p>
-          <hr>
-          <div class="small"><strong>Reporter:</strong> {{ match.lost_item.reporter.get_full_name }}</div>
-          <div class="small"><strong>Email:</strong> {{ match.lost_item.reporter.email }}</div>
-          <div class="small"><strong>Reported on:</strong> {{ match.lost_item.created_at|date:"N j, Y H:i" }}</div>
+<div style="display:grid;grid-template-columns:1fr 280px;gap:1.5rem;align-items:start;" class="animate-up">
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+    <!-- Side by side -->
+    <div class="grid grid-2">
+      <div class="card" style="border-top:3px solid var(--danger);">
+        <div class="card-body">
+          <div class="small fw-bold text-danger" style="text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.75rem;"><i class="fas fa-minus-circle" style="margin-right:6px;"></i>Lost Item — Claimant</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:1.1rem;margin-bottom:0.5rem;">{{ match.lost_item.title }}</div>
+          <span class="badge badge-muted mb-2">{{ match.lost_item.get_category_display }}</span>
+          <p class="small text-muted mb-2" style="line-height:1.6;">{{ match.lost_item.description }}</p>
+          <div class="small text-muted mb-1"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>{{ match.lost_item.get_location_lost_display }}</div>
+          <div class="small text-muted mb-2"><i class="fas fa-calendar" style="margin-right:6px;"></i>{{ match.lost_item.date_lost }}</div>
+          <div class="divider"></div>
+          <div class="small mb-1"><strong>Owner:</strong> {{ match.lost_item.reporter.get_full_name }}</div>
+          <div class="small mb-1"><strong>Email:</strong> {{ match.lost_item.reporter.email }}</div>
+          <div class="small"><strong>Reported:</strong> {{ match.lost_item.created_at|date:"N j, Y H:i" }}</div>
           {% if match.lost_item.proof_of_ownership %}
-          <div class="mt-2"><a href="{{ match.lost_item.proof_of_ownership.url }}" target="_blank" class="btn btn-outline-primary btn-sm"><i class="fas fa-paperclip me-1"></i>View Proof of Ownership</a></div>
+          <a href="{{ match.lost_item.proof_of_ownership.url }}" target="_blank" class="btn btn-outline btn-sm mt-2"><i class="fas fa-paperclip"></i> Proof of Ownership</a>
           {% else %}
-          <div class="mt-2 text-warning small"><i class="fas fa-exclamation-triangle me-1"></i>No proof of ownership uploaded</div>
+          <div class="small text-warning mt-2"><i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>No proof uploaded</div>
           {% endif %}
         </div>
       </div>
-      <div class="col-md-6">
-        <div class="card p-4 border-success border-2 h-100">
-          <h6 class="text-success fw-bold mb-3"><i class="fas fa-hand-holding me-2"></i>FOUND ITEM (Finder)</h6>
-          <h6 class="fw-bold">{{ match.found_item.title }}</h6>
-          <div class="mb-2"><span class="badge bg-secondary">{{ match.found_item.get_category_display }}</span></div>
-          <p class="text-muted small mb-2"><strong>Public:</strong> {{ match.found_item.public_description }}</p>
-          <p class="text-muted small mb-2"><strong>Private:</strong> {{ match.found_item.private_description }}</p>
-          <p class="text-muted small mb-1"><i class="fas fa-map-marker-alt me-1"></i>{{ match.found_item.get_location_found_display }}{% if match.found_item.location_detail %} — {{ match.found_item.location_detail }}{% endif %}</p>
-          <p class="text-muted small mb-2"><i class="fas fa-calendar me-1"></i>{{ match.found_item.date_found }}</p>
-          <hr>
-          <div class="small"><strong>Finder:</strong> {{ match.found_item.finder.get_full_name }}</div>
+      <div class="card" style="border-top:3px solid var(--success);">
+        <div class="card-body">
+          <div class="small fw-bold text-success" style="text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.75rem;"><i class="fas fa-hand-holding" style="margin-right:6px;"></i>Found Item — Finder</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:1.1rem;margin-bottom:0.5rem;">{{ match.found_item.title }}</div>
+          <span class="badge badge-muted mb-2">{{ match.found_item.get_category_display }}</span>
+          <div class="small text-muted mb-1"><strong>Public:</strong> {{ match.found_item.public_description }}</div>
+          <div class="small text-muted mb-2"><strong>Private:</strong> {{ match.found_item.private_description }}</div>
+          <div class="small text-muted mb-1"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>{{ match.found_item.get_location_found_display }}{% if match.found_item.location_detail %} — {{ match.found_item.location_detail }}{% endif %}</div>
+          <div class="small text-muted mb-2"><i class="fas fa-calendar" style="margin-right:6px;"></i>{{ match.found_item.date_found }}</div>
+          <div class="divider"></div>
+          <div class="small mb-1"><strong>Finder:</strong> {{ match.found_item.finder.get_full_name }}</div>
           <div class="small"><strong>Holding at:</strong> {{ match.found_item.current_holding|default:"Not specified" }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Verification Comparison Table -->
-    <div class="card p-4 mb-4">
-      <h6 class="fw-bold mb-3"><i class="fas fa-balance-scale text-info me-2"></i>Verification Answer Comparison</h6>
-      <table class="table table-bordered table-sm align-middle">
-        <thead class="table-light">
-          <tr><th style="width:20%">Check</th><th>Claimant's Answer</th><th>Finder's Observation</th><th style="width:15%">Match?</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="fw-semibold small">Colour / Appearance</td>
-            <td class="small">{{ match.lost_item.verif_color|default:"<em class='text-muted'>Not provided</em>" }}</td>
-            <td class="small">{{ match.found_item.verif_color|default:"<em class='text-muted'>Not provided</em>" }}</td>
-            <td class="text-center">
-              {% if match.verif_color_match == True %}<span class="badge bg-success">✓ Yes</span>
-              {% elif match.verif_color_match == False %}<span class="badge bg-danger">✗ No</span>
-              {% else %}<span class="badge bg-secondary">?</span>{% endif %}
-            </td>
-          </tr>
-          <tr>
-            <td class="fw-semibold small">Distinguishing Features</td>
-            <td class="small">{{ match.lost_item.verif_distinguishing|default:"<em class='text-muted'>Not provided</em>" }}</td>
-            <td class="small">{{ match.found_item.verif_distinguishing|default:"<em class='text-muted'>Not provided</em>" }}</td>
-            <td class="text-center">
-              {% if match.verif_distinguishing_match == True %}<span class="badge bg-success">✓ Yes</span>
-              {% elif match.verif_distinguishing_match == False %}<span class="badge bg-danger">✗ No</span>
-              {% else %}<span class="badge bg-secondary">?</span>{% endif %}
-            </td>
-          </tr>
-          <tr>
-            <td class="fw-semibold small">Secret Detail</td>
-            <td class="small">{{ match.lost_item.verif_secret|default:"<em class='text-muted'>Not provided</em>" }}</td>
-            <td class="small">{{ match.found_item.verif_secret|default:"<em class='text-muted'>Not provided</em>" }}</td>
-            <td class="text-center">
-              {% if match.verif_secret_match == True %}<span class="badge bg-success">✓ Yes</span>
-              {% elif match.verif_secret_match == False %}<span class="badge bg-danger">✗ No</span>
-              {% else %}<span class="badge bg-secondary">?</span>{% endif %}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="small text-muted">Verification Score: <strong>{{ match.verification_score }}</strong> checks passed</div>
+    <!-- Verification table -->
+    <div class="card">
+      <div class="card-body">
+        <div style="font-family:var(--font-display);font-weight:700;margin-bottom:1rem;"><i class="fas fa-balance-scale text-primary" style="margin-right:8px;"></i>Verification Answer Comparison</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Check</th><th>Claimant's Answer</th><th>Finder's Observation</th><th>Match?</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="small fw-bold">Colour / Appearance</td>
+                <td class="small">{{ match.lost_item.verif_color|default:"—" }}</td>
+                <td class="small">{{ match.found_item.verif_color|default:"—" }}</td>
+                <td>{% if match.verif_color_match == True %}<span class="badge badge-success">✓ Yes</span>{% elif match.verif_color_match == False %}<span class="badge badge-danger">✗ No</span>{% else %}<span class="badge badge-muted">?</span>{% endif %}</td>
+              </tr>
+              <tr>
+                <td class="small fw-bold">Distinguishing Features</td>
+                <td class="small">{{ match.lost_item.verif_distinguishing|default:"—" }}</td>
+                <td class="small">{{ match.found_item.verif_distinguishing|default:"—" }}</td>
+                <td>{% if match.verif_distinguishing_match == True %}<span class="badge badge-success">✓ Yes</span>{% elif match.verif_distinguishing_match == False %}<span class="badge badge-danger">✗ No</span>{% else %}<span class="badge badge-muted">?</span>{% endif %}</td>
+              </tr>
+              <tr>
+                <td class="small fw-bold">Secret Detail</td>
+                <td class="small">{{ match.lost_item.verif_secret|default:"—" }}</td>
+                <td class="small">{{ match.found_item.verif_secret|default:"—" }}</td>
+                <td>{% if match.verif_secret_match == True %}<span class="badge badge-success">✓ Yes</span>{% elif match.verif_secret_match == False %}<span class="badge badge-danger">✗ No</span>{% else %}<span class="badge badge-muted">?</span>{% endif %}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="small text-muted mt-2">Verification score: <strong style="color:var(--text);">{{ match.verification_score }}</strong></div>
+      </div>
     </div>
 
     {% if match.status == 'pending' %}
-    <div class="card p-4">
-      <h6 class="fw-bold mb-3">Record Your Review</h6>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <form method="post" action="{% url 'approve_match' match.pk %}">
-            {% csrf_token %}
-            <div class="mb-2"><label class="form-label small fw-semibold">Colour match?</label><select name="verif_color_match" class="form-select form-select-sm"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
-            <div class="mb-2"><label class="form-label small fw-semibold">Features match?</label><select name="verif_distinguishing_match" class="form-select form-select-sm"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
-            <div class="mb-2"><label class="form-label small fw-semibold">Secret detail match?</label><select name="verif_secret_match" class="form-select form-select-sm"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
-            <div class="mb-3"><label class="form-label small fw-semibold">Admin Notes</label><textarea name="admin_verif_notes" class="form-control form-control-sm" rows="2" placeholder="Document your findings..."></textarea></div>
-            <button type="submit" class="btn btn-success w-100 fw-bold"><i class="fas fa-check me-2"></i>Approve — Ownership Verified</button>
+    <div class="grid grid-2">
+      <div class="card" style="border-top:3px solid var(--success);">
+        <div class="card-body">
+          <div style="font-family:var(--font-display);font-weight:700;color:var(--success);margin-bottom:1rem;">Approve Match</div>
+          <form method="post" action="{% url 'approve_match' match.pk %}">{% csrf_token %}
+            <div class="form-group"><label class="form-label">Colour match?</label><select name="verif_color_match" class="form-select"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
+            <div class="form-group"><label class="form-label">Features match?</label><select name="verif_distinguishing_match" class="form-select"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
+            <div class="form-group"><label class="form-label">Secret detail match?</label><select name="verif_secret_match" class="form-select"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
+            <div class="form-group"><label class="form-label">Admin Notes</label><textarea name="admin_verif_notes" class="form-control" rows="2" placeholder="Document your findings..."></textarea></div>
+            <button type="submit" class="btn btn-success btn-block"><i class="fas fa-check"></i> Approve — Ownership Verified</button>
           </form>
         </div>
-        <div class="col-md-6">
-          <form method="post" action="{% url 'reject_match' match.pk %}">
-            {% csrf_token %}
-            <div class="mb-2"><label class="form-label small fw-semibold">Colour match?</label><select name="verif_color_match" class="form-select form-select-sm"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
-            <div class="mb-2"><label class="form-label small fw-semibold">Features match?</label><select name="verif_distinguishing_match" class="form-select form-select-sm"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
-            <div class="mb-2"><label class="form-label small fw-semibold">Secret detail match?</label><select name="verif_secret_match" class="form-select form-select-sm"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
-            <div class="mb-3"><label class="form-label small fw-semibold">Reason for Rejection</label><textarea name="admin_verif_notes" class="form-control form-control-sm" rows="2" placeholder="Explain why ownership could not be confirmed..."></textarea></div>
-            <button type="submit" class="btn btn-danger w-100 fw-bold"><i class="fas fa-times me-2"></i>Reject — Ownership Not Confirmed</button>
+      </div>
+      <div class="card" style="border-top:3px solid var(--danger);">
+        <div class="card-body">
+          <div style="font-family:var(--font-display);font-weight:700;color:var(--danger);margin-bottom:1rem;">Reject Match</div>
+          <form method="post" action="{% url 'reject_match' match.pk %}">{% csrf_token %}
+            <div class="form-group"><label class="form-label">Colour match?</label><select name="verif_color_match" class="form-select"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
+            <div class="form-group"><label class="form-label">Features match?</label><select name="verif_distinguishing_match" class="form-select"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
+            <div class="form-group"><label class="form-label">Secret detail match?</label><select name="verif_secret_match" class="form-select"><option value="">—</option><option value="True">✓ Yes</option><option value="False">✗ No</option></select></div>
+            <div class="form-group"><label class="form-label">Reason for Rejection</label><textarea name="admin_verif_notes" class="form-control" rows="2" placeholder="Why ownership couldn't be confirmed..."></textarea></div>
+            <button type="submit" class="btn btn-danger btn-block"><i class="fas fa-times"></i> Reject — Not Confirmed</button>
           </form>
         </div>
       </div>
@@ -138,41 +125,39 @@
     {% endif %}
   </div>
 
-  <div class="col-md-4">
-    <div class="card p-4 mb-3">
-      <h6 class="fw-bold mb-3"><i class="fas fa-chart-bar me-2 text-info"></i>Match Summary</h6>
-      <div class="mb-3">
-        <div class="d-flex justify-content-between mb-1"><span class="small text-muted">Match Score</span><strong>{{ match.match_score }}%</strong></div>
-        <div class="score-bar"><div class="score-fill" style="width:{{ match.match_score }}%;"></div></div>
+  <!-- Sidebar -->
+  <div style="display:flex;flex-direction:column;gap:1rem;">
+    <div class="card">
+      <div class="card-body">
+        <div class="small fw-bold text-muted" style="text-transform:uppercase;letter-spacing:0.5px;margin-bottom:1rem;">Match Summary</div>
+        <div style="margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span class="small text-muted">Match Score</span><strong>{{ match.match_score }}%</strong></div>
+          <div class="score-bar"><div class="score-fill" style="width:{{ match.match_score }}%;"></div></div>
+        </div>
+        <div class="small mb-2"><span class="text-muted">Fraud Risk:</span> <span class="badge {% if match.fraud_risk == 'high' %}badge-danger{% elif match.fraud_risk == 'medium' %}badge-warning{% else %}badge-success{% endif %}" style="margin-left:6px;">{{ match.get_fraud_risk_display }}</span></div>
+        <div class="small mb-2"><span class="text-muted">Viewed before:</span> <span class="{% if match.reporter_viewed_found_before_reporting %}text-danger{% else %}text-success{% endif %}" style="margin-left:6px;">{% if match.reporter_viewed_found_before_reporting %}⚠️ Yes{% else %}✓ No{% endif %}</span></div>
+        <div class="small mb-2"><span class="text-muted">Created:</span> <span style="margin-left:6px;">{{ match.created_at|date:"N j, Y H:i" }}</span></div>
+        {% if match.reviewed_at %}<div class="small mb-2"><span class="text-muted">Reviewed:</span> <span style="margin-left:6px;">{{ match.reviewed_at|date:"N j, Y H:i" }}</span></div>{% endif %}
+        {% if match.reviewed_by %}<div class="small"><span class="text-muted">Reviewed by:</span> <span style="margin-left:6px;">{{ match.reviewed_by.get_full_name }}</span></div>{% endif %}
       </div>
-      <div class="mb-2">
-        <span class="text-muted small">Fraud Risk:</span>
-        <span class="badge {% if match.fraud_risk == 'high' %}bg-danger{% elif match.fraud_risk == 'medium' %}bg-warning text-dark{% else %}bg-success{% endif %} ms-2">{{ match.get_fraud_risk_display }}</span>
-      </div>
-      <div class="mb-2"><span class="text-muted small">Status:</span>
-        <span class="badge {% if match.status == 'pending' %}bg-warning text-dark{% elif match.status == 'approved' %}bg-success{% elif match.status == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %} ms-2">{{ match.get_status_display }}</span>
-      </div>
-      <div class="mb-2"><span class="text-muted small">Viewed before reporting:</span>
-        <span class="ms-2 small {% if match.reporter_viewed_found_before_reporting %}text-danger fw-bold{% else %}text-success{% endif %}">
-          {% if match.reporter_viewed_found_before_reporting %}⚠️ Yes{% else %}✓ No{% endif %}
-        </span>
-      </div>
-      <div><span class="text-muted small">Created:</span> <span class="small">{{ match.created_at|date:"N j, Y H:i" }}</span></div>
     </div>
     {% if match.admin_verif_notes %}
-    <div class="card p-4">
-      <h6 class="fw-bold mb-2"><i class="fas fa-sticky-note me-2 text-warning"></i>Admin Notes</h6>
-      <p class="text-muted small mb-0">{{ match.admin_verif_notes }}</p>
+    <div class="card">
+      <div class="card-body">
+        <div class="small fw-bold text-muted" style="text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.75rem;">Admin Notes</div>
+        <p class="small text-muted mb-0" style="line-height:1.6;">{{ match.admin_verif_notes }}</p>
+      </div>
     </div>
     {% endif %}
     {% if match.status == 'approved' %}
-    <div class="card p-4 mt-3">
-      <form method="post" action="{% url 'complete_match' match.pk %}">{% csrf_token %}
-        <button type="submit" class="btn btn-primary w-100 fw-bold"><i class="fas fa-flag-checkered me-2"></i>Mark as Completed</button>
-      </form>
+    <div class="card">
+      <div class="card-body">
+        <form method="post" action="{% url 'complete_match' match.pk %}">{% csrf_token %}
+          <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-flag-checkered"></i> Mark as Completed</button>
+        </form>
+      </div>
     </div>
     {% endif %}
   </div>
 </div>
-<a href="{% url 'admin_matches' %}" class="btn btn-outline-secondary mt-3"><i class="fas fa-arrow-left me-2"></i>Back to Matches</a>
 {% endblock %}

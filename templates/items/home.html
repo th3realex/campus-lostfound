@@ -1,76 +1,162 @@
 {% extends 'base.html' %}
-{% block title %}Home — Campus Lost & Found{% endblock %}
+{% block title %}Campus Lost & Found — Home{% endblock %}
 {% block content %}
-<div class="rounded-4 p-5 mb-5 text-white" style="background: linear-gradient(135deg, #1a56db, #1e3a8a);">
-  <div class="row align-items-center">
-    <div class="col-md-7">
-      <h1 class="display-5 fw-bold mb-3">Lost something on campus?<br><span style="color:#fbbf24;">We help you find it.</span></h1>
-      <p class="lead mb-4 opacity-75">Report lost or found items and our smart matching system connects you with the right person.</p>
-      <div class="d-flex gap-3 flex-wrap">
-        {% if user.is_authenticated %}
-        <a href="{% url 'report_lost' %}" class="btn btn-danger btn-lg px-4"><i class="fas fa-minus-circle me-2"></i>Report Lost</a>
-        <a href="{% url 'report_found' %}" class="btn btn-success btn-lg px-4"><i class="fas fa-plus-circle me-2"></i>Report Found</a>
-        {% else %}
-        <a href="{% url 'register' %}" class="btn btn-warning btn-lg px-4 fw-bold"><i class="fas fa-user-plus me-2"></i>Get Started</a>
-        <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4">Login</a>
-        {% endif %}
+
+<!-- HERO -->
+<section style="padding: 4rem 0 3rem; position: relative;">
+  <div style="position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(79,142,247,0.08) 0%,transparent 70%);pointer-events:none;"></div>
+  <div style="text-align:center; position:relative; max-width:700px; margin:0 auto;" class="animate-up">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(79,142,247,0.1);border:1px solid rgba(79,142,247,0.2);border-radius:20px;padding:6px 16px;font-size:0.8rem;color:var(--primary);margin-bottom:1.5rem;">
+      <span style="width:6px;height:6px;background:var(--primary);border-radius:50%;animation:pulse 2s infinite;"></span>
+      Smart matching system — active
+    </div>
+    <h1 style="font-family:var(--font-display);font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;line-height:1.1;margin-bottom:1rem;letter-spacing:-1px;">
+      Lost something on<br>
+      <span style="background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">campus?</span>
+    </h1>
+    <p style="font-size:1.1rem;color:var(--text-muted);max-width:500px;margin:0 auto 2rem;line-height:1.7;">
+      Report lost or found items and our intelligent matching system connects you with the right person automatically.
+    </p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      {% if user.is_authenticated %}
+      <a href="{% url 'report_lost' %}" class="btn btn-danger btn-lg"><i class="fas fa-minus-circle"></i> Report Lost Item</a>
+      <a href="{% url 'report_found' %}" class="btn btn-success btn-lg"><i class="fas fa-plus-circle"></i> Report Found Item</a>
+      {% else %}
+      <a href="{% url 'register' %}" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i> Get Started Free</a>
+      <a href="{% url 'login' %}" class="btn btn-outline btn-lg">Login</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="grid grid-4 mt-3 mb-4">
+  <div class="stat-card blue animate-up">
+    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+    <div class="stat-number text-primary">{{ stats.total_lost }}</div>
+    <div class="stat-label">Items Reported Lost</div>
+  </div>
+  <div class="stat-card orange animate-up">
+    <div class="stat-icon"><i class="fas fa-hand-holding"></i></div>
+    <div class="stat-number" style="color:var(--accent);">{{ stats.total_found }}</div>
+    <div class="stat-label">Items Found</div>
+  </div>
+  <div class="stat-card green animate-up">
+    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+    <div class="stat-number text-success">{{ stats.total_resolved }}</div>
+    <div class="stat-label">Successfully Returned</div>
+  </div>
+  <div class="stat-card red animate-up">
+    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+    <div class="stat-number" style="color:var(--warning);">{{ stats.pending_matches }}</div>
+    <div class="stat-label">Pending Matches</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="card card-flat p-4 mb-4 animate-up">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;text-align:center;">
+    <div>
+      <div style="width:48px;height:48px;background:rgba(79,142,247,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.3rem;color:var(--primary);">
+        <i class="fas fa-file-alt"></i>
       </div>
+      <div style="font-family:var(--font-display);font-weight:700;margin-bottom:6px;">1. Report</div>
+      <div class="small text-muted">Describe your lost or found item with as much detail as possible</div>
     </div>
-    <div class="col-md-5 text-center d-none d-md-block">
-      <i class="fas fa-search-location" style="font-size: 8rem; opacity: 0.3;"></i>
+    <div>
+      <div style="width:48px;height:48px;background:rgba(247,135,79,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.3rem;" style="color:var(--accent);">
+        <i class="fas fa-brain" style="color:var(--accent);"></i>
+      </div>
+      <div style="font-family:var(--font-display);font-weight:700;margin-bottom:6px;">2. Match</div>
+      <div class="small text-muted">Our system automatically finds potential matches and flags them for review</div>
+    </div>
+    <div>
+      <div style="width:48px;height:48px;background:rgba(79,202,142,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.3rem;color:var(--success);">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <div style="font-family:var(--font-display);font-weight:700;margin-bottom:6px;">3. Verify</div>
+      <div class="small text-muted">Admin verifies ownership using private answers before sharing details</div>
+    </div>
+    <div>
+      <div style="width:48px;height:48px;background:rgba(247,200,79,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.3rem;color:var(--warning);">
+        <i class="fas fa-handshake"></i>
+      </div>
+      <div style="font-family:var(--font-display);font-weight:700;margin-bottom:6px;">4. Return</div>
+      <div class="small text-muted">Contact details shared, item collected, case closed</div>
     </div>
   </div>
 </div>
-<div class="row g-3 mb-5">
-  <div class="col-6 col-md-3"><div class="card text-center p-4"><div style="font-size:2rem; color:#ef4444;" class="fw-bold">{{ stats.total_lost }}</div><div class="text-muted small mt-1">Items Reported Lost</div></div></div>
-  <div class="col-6 col-md-3"><div class="card text-center p-4"><div style="font-size:2rem; color:#10b981;" class="fw-bold">{{ stats.total_found }}</div><div class="text-muted small mt-1">Items Found</div></div></div>
-  <div class="col-6 col-md-3"><div class="card text-center p-4"><div style="font-size:2rem; color:#1a56db;" class="fw-bold">{{ stats.total_resolved }}</div><div class="text-muted small mt-1">Successfully Returned</div></div></div>
-  <div class="col-6 col-md-3"><div class="card text-center p-4"><div style="font-size:2rem; color:#f59e0b;" class="fw-bold">{{ stats.pending_matches }}</div><div class="text-muted small mt-1">Pending Matches</div></div></div>
-</div>
-<div class="mb-5">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="section-title mb-0"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Recently Lost</h4>
-    <a href="{% url 'lost_items' %}" class="btn btn-outline-primary btn-sm">View All</a>
+
+<!-- RECENT LOST -->
+<div class="mb-4">
+  <div class="section-head animate-up">
+    <div>
+      <div class="section-title"><i class="fas fa-exclamation-triangle text-danger" style="font-size:1.2rem;margin-right:10px;"></i>Recently Lost</div>
+    </div>
+    <a href="{% url 'lost_items' %}" class="btn btn-outline btn-sm">View All <i class="fas fa-arrow-right"></i></a>
   </div>
-  <div class="row row-cols-1 row-cols-md-3 g-3">
+  <div class="grid grid-auto">
     {% for item in recent_lost %}
-    <div class="col">
-      <div class="card h-100">
-        {% if item.image %}<img src="{{ item.image.url }}" class="item-img" alt="{{ item.title }}">
-        {% else %}<div class="item-img-placeholder"><i class="fas fa-image fa-2x text-muted"></i></div>{% endif %}
-        <div class="card-body p-3">
-          <span class="badge bg-danger-subtle text-danger rounded-pill mb-2">{{ item.get_category_display }}</span>
-          <h6 class="fw-bold mb-1">{{ item.title }}</h6>
-          <div class="text-muted small"><i class="fas fa-map-marker-alt me-1"></i>{{ item.get_location_lost_display }}</div>
-          <div class="text-muted small"><i class="fas fa-calendar me-1"></i>{{ item.date_lost }}</div>
-          <a href="{% url 'lost_item_detail' item.pk %}" class="btn btn-outline-danger btn-sm mt-2 w-100">View Details</a>
-        </div>
+    <div class="item-card animate-up">
+      <div class="item-card-shine"></div>
+      {% if item.image %}
+      <img src="{{ item.image.url }}" class="item-card-img" alt="{{ item.title }}">
+      {% else %}
+      <div class="item-card-placeholder"><i class="fas fa-image"></i></div>
+      {% endif %}
+      <div class="item-card-body">
+        <span class="badge badge-danger mb-2">{{ item.get_category_display }}</span>
+        <div class="item-card-title">{{ item.title }}</div>
+        <div class="item-card-meta"><i class="fas fa-map-marker-alt"></i>{{ item.get_location_lost_display }}</div>
+        <div class="item-card-meta"><i class="fas fa-calendar"></i>{{ item.date_lost }}</div>
+        {% if item.reward %}<div class="item-card-meta text-warning mt-1"><i class="fas fa-gift"></i>{{ item.reward }}</div>{% endif %}
+        <a href="{% url 'lost_item_detail' item.pk %}" class="btn btn-outline btn-sm btn-block mt-2">View Details</a>
       </div>
     </div>
-    {% empty %}<div class="col-12 text-muted text-center py-4">No active lost items.</div>{% endfor %}
+    {% empty %}
+    <div class="empty-state" style="grid-column:1/-1;">
+      <i class="fas fa-box-open"></i>
+      <h5>No lost items reported yet</h5>
+    </div>
+    {% endfor %}
   </div>
 </div>
-<div class="mb-5">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="section-title mb-0"><i class="fas fa-hand-holding text-success me-2"></i>Recently Found</h4>
-    <a href="{% url 'found_items' %}" class="btn btn-outline-success btn-sm">View All</a>
+
+<!-- RECENT FOUND -->
+<div class="mb-4">
+  <div class="section-head animate-up">
+    <div>
+      <div class="section-title"><i class="fas fa-hand-holding text-success" style="font-size:1.2rem;margin-right:10px;"></i>Recently Found</div>
+    </div>
+    <a href="{% url 'found_items' %}" class="btn btn-outline btn-sm">View All <i class="fas fa-arrow-right"></i></a>
   </div>
-  <div class="row row-cols-1 row-cols-md-3 g-3">
+  <div class="grid grid-auto">
     {% for item in recent_found %}
-    <div class="col">
-      <div class="card h-100">
-        {% if item.image %}<img src="{{ item.image.url }}" class="item-img" alt="{{ item.title }}">
-        {% else %}<div class="item-img-placeholder"><i class="fas fa-image fa-2x text-muted"></i></div>{% endif %}
-        <div class="card-body p-3">
-          <span class="badge bg-success-subtle text-success rounded-pill mb-2">{{ item.get_category_display }}</span>
-          <h6 class="fw-bold mb-1">{{ item.title }}</h6>
-          <div class="text-muted small"><i class="fas fa-map-marker-alt me-1"></i>{{ item.get_location_found_display }}</div>
-          <div class="text-muted small"><i class="fas fa-calendar me-1"></i>{{ item.date_found }}</div>
-          <a href="{% url 'found_item_detail' item.pk %}" class="btn btn-outline-success btn-sm mt-2 w-100">View Details</a>
-        </div>
+    <div class="item-card animate-up">
+      <div class="item-card-shine"></div>
+      {% if item.image %}
+      <img src="{{ item.image.url }}" class="item-card-img" alt="{{ item.title }}">
+      {% else %}
+      <div class="item-card-placeholder"><i class="fas fa-image"></i></div>
+      {% endif %}
+      <div class="item-card-body">
+        <span class="badge badge-success mb-2">{{ item.get_category_display }}</span>
+        <div class="item-card-title">{{ item.title }}</div>
+        <div class="item-card-meta"><i class="fas fa-map-marker-alt"></i>{{ item.get_location_found_display }}</div>
+        <div class="item-card-meta"><i class="fas fa-calendar"></i>{{ item.date_found }}</div>
+        <a href="{% url 'found_item_detail' item.pk %}" class="btn btn-outline btn-sm btn-block mt-2">View Details</a>
       </div>
     </div>
-    {% empty %}<div class="col-12 text-muted text-center py-4">No found items reported.</div>{% endfor %}
+    {% empty %}
+    <div class="empty-state" style="grid-column:1/-1;">
+      <i class="fas fa-box-open"></i>
+      <h5>No found items reported yet</h5>
+    </div>
+    {% endfor %}
   </div>
 </div>
+
+<style>
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+</style>
 {% endblock %}

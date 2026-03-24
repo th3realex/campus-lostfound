@@ -1,51 +1,44 @@
 {% extends 'base.html' %}
 {% block title %}Manage Matches{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h4 class="fw-bold mb-0"><i class="fas fa-link text-primary me-2"></i>All Matches</h4>
-  <a href="{% url 'create_manual_match' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-2"></i>Create Manual Match</a>
+<div class="section-head animate-up">
+  <div><div class="section-title">All Matches</div></div>
+  <a href="{% url 'create_manual_match' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Create Match</a>
 </div>
-<div class="mb-3 d-flex flex-wrap gap-2">
-  <a href="{% url 'admin_matches' %}" class="btn btn-sm {% if not status_filter and not risk_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}">All</a>
-  <a href="?status=pending" class="btn btn-sm {% if status_filter == 'pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">Pending</a>
-  <a href="?status=approved" class="btn btn-sm {% if status_filter == 'approved' %}btn-success{% else %}btn-outline-success{% endif %}">Approved</a>
-  <a href="?status=rejected" class="btn btn-sm {% if status_filter == 'rejected' %}btn-danger{% else %}btn-outline-danger{% endif %}">Rejected</a>
-  <a href="?status=completed" class="btn btn-sm {% if status_filter == 'completed' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">Completed</a>
-  <span class="text-muted small ms-2 mt-1">Risk:</span>
-  <a href="?risk=high" class="btn btn-sm {% if risk_filter == 'high' %}btn-danger{% else %}btn-outline-danger{% endif %}">🚨 High Risk</a>
-  <a href="?risk=medium" class="btn btn-sm {% if risk_filter == 'medium' %}btn-warning{% else %}btn-outline-warning{% endif %}">⚠️ Medium</a>
-  <a href="?risk=low" class="btn btn-sm {% if risk_filter == 'low' %}btn-success{% else %}btn-outline-success{% endif %}">✓ Low</a>
+<div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.5rem;" class="animate-up">
+  <a href="{% url 'admin_matches' %}" class="btn btn-sm {% if not status_filter and not risk_filter %}btn-primary{% else %}btn-outline{% endif %}">All</a>
+  <a href="?status=pending" class="btn btn-sm {% if status_filter == 'pending' %}btn-warning{% else %}btn-outline{% endif %}">Pending</a>
+  <a href="?status=approved" class="btn btn-sm {% if status_filter == 'approved' %}btn-success{% else %}btn-outline{% endif %}">Approved</a>
+  <a href="?status=rejected" class="btn btn-sm {% if status_filter == 'rejected' %}btn-danger{% else %}btn-outline{% endif %}">Rejected</a>
+  <a href="?status=completed" class="btn btn-sm {% if status_filter == 'completed' %}btn-ghost{% else %}btn-outline{% endif %}">Completed</a>
+  <span style="width:1px;background:var(--border);margin:0 4px;"></span>
+  <a href="?risk=high" class="btn btn-sm {% if risk_filter == 'high' %}btn-danger{% else %}btn-outline{% endif %}">🚨 High Risk</a>
+  <a href="?risk=medium" class="btn btn-sm {% if risk_filter == 'medium' %}btn-warning{% else %}btn-outline{% endif %}">⚠️ Medium</a>
+  <a href="?risk=low" class="btn btn-sm {% if risk_filter == 'low' %}btn-success{% else %}btn-outline{% endif %}">✓ Low</a>
 </div>
-<div class="table-responsive card p-0">
-  <table class="table table-hover mb-0 align-middle">
-    <thead class="table-light">
-      <tr><th>#</th><th>Lost Item</th><th>Found Item</th><th>Score</th><th>Fraud Risk</th><th>Viewed?</th><th>Status</th><th>Date</th><th>Actions</th></tr>
-    </thead>
+<div class="table-wrap animate-up">
+  <table>
+    <thead><tr><th>#</th><th>Lost Item</th><th>Found Item</th><th>Score</th><th>Risk</th><th>Viewed?</th><th>Status</th><th>Date</th><th></th></tr></thead>
     <tbody>
       {% for match in matches %}
-      <tr class="{% if match.fraud_risk == 'high' and match.status == 'pending' %}table-danger{% elif match.fraud_risk == 'medium' and match.status == 'pending' %}table-warning{% endif %}">
-        <td>{{ match.pk }}</td>
-        <td><a href="{% url 'lost_item_detail' match.lost_item.pk %}" class="fw-semibold text-decoration-none">{{ match.lost_item.title }}</a><br><small class="text-muted">{{ match.lost_item.reporter.get_full_name }}</small></td>
-        <td><a href="{% url 'found_item_detail' match.found_item.pk %}" class="fw-semibold text-decoration-none">{{ match.found_item.title }}</a><br><small class="text-muted">{{ match.found_item.finder.get_full_name }}</small></td>
-        <td><div class="score-bar" style="width:60px;"><div class="score-fill" style="width:{{ match.match_score }}%;"></div></div><small>{{ match.match_score }}%</small></td>
-        <td><span class="badge {% if match.fraud_risk == 'high' %}bg-danger{% elif match.fraud_risk == 'medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">{{ match.get_fraud_risk_display }}</span></td>
-        <td class="small {% if match.reporter_viewed_found_before_reporting %}text-danger fw-bold{% else %}text-muted{% endif %}">{% if match.reporter_viewed_found_before_reporting %}⚠️ Yes{% else %}No{% endif %}</td>
+      <tr>
+        <td class="small text-muted">{{ match.pk }}</td>
+        <td><a href="{% url 'lost_item_detail' match.lost_item.pk %}" style="color:var(--primary);text-decoration:none;font-weight:600;">{{ match.lost_item.title }}</a><br><span class="small text-muted">{{ match.lost_item.reporter.get_full_name }}</span></td>
+        <td><a href="{% url 'found_item_detail' match.found_item.pk %}" style="color:var(--primary);text-decoration:none;font-weight:600;">{{ match.found_item.title }}</a><br><span class="small text-muted">{{ match.found_item.finder.get_full_name }}</span></td>
+        <td><div class="score-bar" style="width:60px;margin-bottom:3px;"><div class="score-fill" style="width:{{ match.match_score }}%;"></div></div><span class="small">{{ match.match_score }}%</span></td>
+        <td><span class="badge {% if match.fraud_risk == 'high' %}badge-danger{% elif match.fraud_risk == 'medium' %}badge-warning{% else %}badge-success{% endif %}">{{ match.get_fraud_risk_display }}</span></td>
+        <td class="small {% if match.reporter_viewed_found_before_reporting %}text-danger{% else %}text-muted{% endif %}">{% if match.reporter_viewed_found_before_reporting %}⚠️ Yes{% else %}No{% endif %}</td>
+        <td><span class="badge {% if match.status == 'pending' %}badge-warning{% elif match.status == 'approved' %}badge-success{% elif match.status == 'rejected' %}badge-danger{% else %}badge-muted{% endif %}">{{ match.get_status_display }}</span></td>
+        <td class="small text-muted">{{ match.created_at|date:"M d, Y" }}</td>
         <td>
-          {% if match.status == 'pending' %}<span class="badge bg-warning text-dark">Pending</span>
-          {% elif match.status == 'approved' %}<span class="badge bg-success">Approved</span>
-          {% elif match.status == 'rejected' %}<span class="badge bg-danger">Rejected</span>
-          {% else %}<span class="badge bg-secondary">Completed</span>{% endif %}
-        </td>
-        <td><small>{{ match.created_at|date:"M d, Y" }}</small></td>
-        <td>
-          <a href="{% url 'match_detail' match.pk %}" class="btn btn-sm btn-outline-info" title="Review"><i class="fas fa-eye"></i></a>
+          <a href="{% url 'match_detail' match.pk %}" class="btn btn-outline btn-sm"><i class="fas fa-eye"></i></a>
           {% if match.status == 'approved' %}
-          <form method="post" action="{% url 'complete_match' match.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-primary ms-1" title="Complete"><i class="fas fa-flag-checkered"></i></button></form>
+          <form method="post" action="{% url 'complete_match' match.pk %}" style="display:inline;">{% csrf_token %}<button class="btn btn-primary btn-sm" style="margin-left:4px;" title="Complete"><i class="fas fa-flag-checkered"></i></button></form>
           {% endif %}
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="9" class="text-center text-muted py-4">No matches found.</td></tr>
+      <tr><td colspan="9" style="text-align:center;padding:3rem;color:var(--text-muted);">No matches found</td></tr>
       {% endfor %}
     </tbody>
   </table>

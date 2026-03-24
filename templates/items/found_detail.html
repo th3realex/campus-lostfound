@@ -1,87 +1,76 @@
 {% extends 'base.html' %}
-{% block title %}{{ item.title }} — Found Item{% endblock %}
+{% block title %}{{ item.title }}{% endblock %}
 {% block content %}
-<div class="row">
-  <div class="col-md-8">
-    <div class="card p-4 mb-4">
-      <div class="d-flex justify-content-between align-items-start mb-3">
-        <div>
-          <span class="badge bg-success-subtle text-success rounded-pill mb-2">{{ item.get_category_display }}</span>
-          <span class="badge bg-secondary-subtle text-secondary rounded-pill mb-2 ms-2">{{ item.get_status_display }}</span>
-          <h3 class="fw-bold mb-0">{{ item.title }}</h3>
+<a href="{% url 'found_items' %}" class="btn btn-outline btn-sm mb-3 animate-up"><i class="fas fa-arrow-left"></i> Back</a>
+<div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;" class="animate-up">
+  <div>
+    <div class="card">
+      <div class="card-body">
+        <span class="badge badge-success mb-2">{{ item.get_category_display }}</span>
+        <span class="badge badge-muted mb-2" style="margin-left:6px;">{{ item.get_status_display }}</span>
+        <h2 style="font-family:var(--font-display);font-weight:800;font-size:1.75rem;margin-bottom:1rem;">{{ item.title }}</h2>
+        {% if item.image and show_private %}<img src="{{ item.image.url }}" style="width:100%;height:300px;object-fit:cover;border-radius:var(--radius);margin-bottom:1.5rem;" alt="">
+        {% elif item.image %}<div style="background:var(--surface2);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:10px;" class="small text-muted"><i class="fas fa-lock text-primary"></i>Photo shown after ownership verification</div>{% endif %}
+
+        <div class="small fw-bold text-muted" style="text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Public Description</div>
+        <p style="line-height:1.8;">{{ item.public_description }}</p>
+
+        {% if show_private %}
+        <div class="divider"></div>
+        <div style="background:rgba(247,200,79,0.08);border:1px solid rgba(247,200,79,0.2);border-radius:var(--radius);padding:1.25rem;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;"><i class="fas fa-lock text-warning"></i><span style="font-family:var(--font-display);font-weight:700;">Private Details — Verified Access</span></div>
+          <div class="small mb-2"><strong>Full Description:</strong> {{ item.private_description }}</div>
+          {% if item.location_detail %}<div class="small mb-2"><strong>Exact Location:</strong> {{ item.location_detail }}</div>{% endif %}
+          {% if item.current_holding %}<div class="small"><strong>Currently at:</strong> {{ item.current_holding }}</div>{% endif %}
         </div>
-      </div>
+        {% else %}
+        <div style="background:rgba(79,142,247,0.08);border:1px solid rgba(79,142,247,0.2);border-radius:var(--radius);padding:1.25rem;margin-top:1rem;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;"><i class="fas fa-shield-alt text-primary"></i><strong>Full details are hidden to prevent fraud</strong></div>
+          <p class="small text-muted mb-0">If this is your item, report it as lost and admin will verify your ownership before sharing details.</p>
+        </div>
+        {% endif %}
 
-      {% if item.image and show_private %}
-      <img src="{{ item.image.url }}" class="rounded-3 mb-4 w-100" style="max-height:350px;object-fit:cover;" alt="{{ item.title }}">
-      {% elif item.image %}
-      <div class="alert alert-secondary mb-4"><i class="fas fa-lock me-2"></i>Item photo is only shown after ownership is verified.</div>
-      {% endif %}
-
-      <!-- Public description — always visible -->
-      <h6 class="fw-bold text-muted text-uppercase small">Description</h6>
-      <p>{{ item.public_description }}</p>
-
-      <!-- Private description — only for admin or verified owner -->
-      {% if show_private %}
-      <div class="p-3 rounded-3 border border-warning mb-3" style="background:#fffbeb;">
-        <h6 class="fw-bold text-warning mb-2"><i class="fas fa-lock me-2"></i>Private Details (Verified Access)</h6>
-        <p class="mb-2"><strong>Full Description:</strong> {{ item.private_description }}</p>
-        {% if item.location_detail %}<p class="mb-2"><strong>Exact Location:</strong> {{ item.location_detail }}</p>{% endif %}
-        {% if item.current_holding %}<p class="mb-0"><strong>Currently at:</strong> {{ item.current_holding }}</p>{% endif %}
-      </div>
-      {% else %}
-      <div class="alert alert-info">
-        <i class="fas fa-shield-alt me-2"></i>
-        <strong>Full details are hidden</strong> to prevent fraudulent claims.
-        If this is your item, <a href="{% url 'report_lost' %}">report it as lost</a> and an admin will verify your ownership before sharing details.
-      </div>
-      {% endif %}
-
-      <div class="row g-3 mt-2">
-        <div class="col-md-6">
-          <div class="p-3 rounded-3" style="background:#f1f5f9;">
-            <div class="text-muted small">General Location</div>
-            <div class="fw-semibold"><i class="fas fa-map-marker-alt text-success me-2"></i>{{ item.get_location_found_display }}</div>
+        <div class="divider"></div>
+        <div class="grid grid-2">
+          <div class="card card-flat" style="padding:1rem;">
+            <div class="small text-muted mb-1">General Location</div>
+            <div style="font-weight:600;"><i class="fas fa-map-marker-alt text-success" style="margin-right:6px;"></i>{{ item.get_location_found_display }}</div>
           </div>
-        </div>
-        <div class="col-md-6">
-          <div class="p-3 rounded-3" style="background:#f1f5f9;">
-            <div class="text-muted small">Date Found</div>
-            <div class="fw-semibold"><i class="fas fa-calendar text-primary me-2"></i>{{ item.date_found }}</div>
+          <div class="card card-flat" style="padding:1rem;">
+            <div class="small text-muted mb-1">Date Found</div>
+            <div style="font-weight:600;"><i class="fas fa-calendar text-primary" style="margin-right:6px;"></i>{{ item.date_found }}</div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <div class="col-md-4">
-    <div class="card p-4 mb-3">
-      <h6 class="fw-bold mb-3"><i class="fas fa-info-circle me-2 text-info"></i>How to Claim</h6>
-      <ol class="small text-muted ps-3">
-        <li class="mb-2">Report your lost item with a detailed description</li>
-        <li class="mb-2">Admin will compare your answers with the finder's private notes</li>
-        <li class="mb-2">If verified, you'll receive the finder's contact details</li>
-        <li>Arrange collection directly with the finder</li>
-      </ol>
-      {% if user.is_authenticated %}
-      <a href="{% url 'report_lost' %}" class="btn btn-danger btn-sm w-100 mt-2 fw-bold">
-        <i class="fas fa-plus me-2"></i>Report This as Lost
-      </a>
-      {% else %}
-      <a href="{% url 'login' %}" class="btn btn-primary btn-sm w-100 mt-2">Login to Report</a>
-      {% endif %}
+  <div style="display:flex;flex-direction:column;gap:1rem;">
+    <div class="card">
+      <div class="card-body">
+        <div class="small fw-bold text-muted" style="text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.75rem;">How to Claim</div>
+        <ol style="padding-left:1.25rem;display:flex;flex-direction:column;gap:8px;" class="small text-muted">
+          <li>Report your lost item with detailed description</li>
+          <li>Admin compares your answers with finder's notes</li>
+          <li>If verified, you receive finder's contact details</li>
+          <li>Arrange collection directly</li>
+        </ol>
+        {% if user.is_authenticated %}
+        <a href="{% url 'report_lost' %}" class="btn btn-danger btn-sm btn-block mt-3"><i class="fas fa-plus"></i> Report This as Lost</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn-primary btn-sm btn-block mt-3">Login to Report</a>
+        {% endif %}
+      </div>
     </div>
-
     {% if show_private %}
-    <div class="card p-4">
-      <h6 class="fw-bold mb-3"><i class="fas fa-user me-2 text-primary"></i>Finder Contact</h6>
-      <div class="mb-2"><strong>{{ item.finder.get_full_name }}</strong></div>
-      {% if item.contact_email %}<div class="mb-1 small"><i class="fas fa-envelope me-2 text-muted"></i>{{ item.contact_email }}</div>{% endif %}
-      {% if item.contact_phone %}<div class="small"><i class="fas fa-phone me-2 text-muted"></i>{{ item.contact_phone }}</div>{% endif %}
+    <div class="card">
+      <div class="card-body">
+        <div class="small fw-bold text-muted" style="text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.75rem;">Finder Contact</div>
+        <div style="font-weight:700;">{{ item.finder.get_full_name }}</div>
+        {% if item.contact_email %}<div class="small mt-2"><i class="fas fa-envelope text-muted" style="margin-right:8px;"></i>{{ item.contact_email }}</div>{% endif %}
+        {% if item.contact_phone %}<div class="small mt-1"><i class="fas fa-phone text-muted" style="margin-right:8px;"></i>{{ item.contact_phone }}</div>{% endif %}
+      </div>
     </div>
     {% endif %}
   </div>
 </div>
-<a href="{% url 'found_items' %}" class="btn btn-outline-secondary mt-2"><i class="fas fa-arrow-left me-2"></i>Back to Found Items</a>
 {% endblock %}

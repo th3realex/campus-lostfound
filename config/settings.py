@@ -87,5 +87,7 @@ EMAIL_HOST_USER = 'your-email@gmail.com'
 EMAIL_HOST_PASSWORD = 'your-app-password'
 DEFAULT_FROM_EMAIL = 'Campus Lost & Found <noreply@campus.edu>'
 import os
+
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-campus-lostfound-change-in-production-xyz123')
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = ['*']
-STATIC_ROOT = BASE_DIR / 'staticfiles'

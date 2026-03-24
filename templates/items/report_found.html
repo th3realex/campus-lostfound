@@ -1,53 +1,56 @@
 {% extends 'base.html' %}
 {% block title %}Report Found Item{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-8">
-    <div class="card p-4">
-      <h4 class="fw-bold mb-1"><i class="fas fa-hand-holding text-success me-2"></i>Report a Found Item</h4>
-      <p class="text-muted mb-4">Thank you for your honesty! Use a <strong>vague public description</strong> to prevent fraudulent claims — put full details in the private section.</p>
+<div style="max-width:700px;margin:0 auto;" class="animate-up">
+  <div class="section-head mb-3">
+    <div>
+      <div class="section-title"><i class="fas fa-hand-holding text-success" style="margin-right:10px;font-size:1.2rem;"></i>Report Found Item</div>
+      <div class="section-sub">Thank you for your honesty — use a vague public description to prevent fraud</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="row g-3">
-          <div class="col-12"><label class="form-label fw-semibold">Item Title *</label>{{ form.title }}<div class="form-text">Keep vague e.g. "Electronic device" not "Samsung S21"</div></div>
-          <div class="col-md-6"><label class="form-label fw-semibold">Category *</label>{{ form.category }}</div>
-          <div class="col-md-6"><label class="form-label fw-semibold">Date Found *</label>{{ form.date_found }}</div>
-          <div class="col-md-6"><label class="form-label fw-semibold">General Location *</label>{{ form.location_found }}</div>
+        <div class="grid grid-2">
+          <div class="form-group" style="grid-column:1/-1;"><label class="form-label">Item Title *</label>{{ form.title }}<div class="form-hint">Keep vague e.g. "Electronic device" not "Samsung S21"</div></div>
+          <div class="form-group"><label class="form-label">Category *</label>{{ form.category }}</div>
+          <div class="form-group"><label class="form-label">Date Found *</label>{{ form.date_found }}</div>
+          <div class="form-group"><label class="form-label">General Location *</label>{{ form.location_found }}</div>
         </div>
 
-        <!-- Public vs Private description split -->
-        <div class="row g-3 mt-1">
-          <div class="col-12">
-            <label class="form-label fw-semibold text-success"><i class="fas fa-globe me-1"></i>{{ form.public_description.label }} *</label>
-            {{ form.public_description }}
-            <div class="form-text text-success">This is shown to everyone. Keep it vague — no serial numbers, exact colours, or specific details.</div>
+        <div class="divider"></div>
+        <div class="form-group">
+          <label class="form-label" style="color:var(--success);"><i class="fas fa-globe" style="margin-right:6px;"></i>Public Description * <span class="badge badge-success" style="font-size:0.7rem;">Shown to everyone</span></label>
+          {{ form.public_description }}
+          <div class="form-hint" style="border-left-color:var(--success);">Keep vague — no serial numbers, exact colours, or specific details.</div>
+        </div>
+
+        <div style="background:rgba(247,200,79,0.08);border:1px solid rgba(247,200,79,0.2);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
+            <i class="fas fa-lock text-warning"></i>
+            <span style="font-family:var(--font-display);font-weight:700;">Private Details <span class="badge badge-warning" style="font-size:0.7rem;">Admin Only</span></span>
           </div>
-          <div class="col-12 p-3 rounded-3 border border-warning ms-2 me-2" style="background:#fffbeb;">
-            <label class="form-label fw-semibold text-warning"><i class="fas fa-lock me-1"></i>{{ form.private_description.label }} *</label>
-            {{ form.private_description }}
-            <div class="form-text">Full details — only admin and the verified owner will see this.</div>
+          <p class="small text-muted mb-3">Full details used for ownership verification — never shown publicly.</p>
+          <div class="grid grid-2">
+            <div class="form-group" style="grid-column:1/-1;"><label class="form-label">{{ form.private_description.label }} *</label>{{ form.private_description }}</div>
+            <div class="form-group"><label class="form-label">{{ form.location_detail.label }}</label>{{ form.location_detail }}</div>
+            <div class="form-group"><label class="form-label">{{ form.current_holding.label }}</label>{{ form.current_holding }}</div>
+            <div class="form-group" style="grid-column:1/-1;"><label class="form-label">{{ form.verif_color.label }}</label>{{ form.verif_color }}</div>
+            <div class="form-group" style="grid-column:1/-1;"><label class="form-label">{{ form.verif_distinguishing.label }}</label>{{ form.verif_distinguishing }}</div>
+            <div class="form-group" style="grid-column:1/-1;"><label class="form-label">{{ form.verif_secret.label }}</label>{{ form.verif_secret }}</div>
           </div>
         </div>
 
-        <div class="row g-3 mt-1 p-3 rounded-3 border border-warning" style="background:#fffbeb;">
-          <h6 class="fw-bold text-warning mb-0"><i class="fas fa-lock me-2"></i>Private Details (admin only)</h6>
-          <p class="text-muted small mb-2">These are kept confidential and used to verify the owner's identity.</p>
-          <div class="col-md-6"><label class="form-label fw-semibold">{{ form.location_detail.label }}</label>{{ form.location_detail }}</div>
-          <div class="col-md-6"><label class="form-label fw-semibold">{{ form.current_holding.label }}</label>{{ form.current_holding }}</div>
-          <div class="col-12"><label class="form-label fw-semibold">{{ form.verif_color.label }}</label>{{ form.verif_color }}</div>
-          <div class="col-12"><label class="form-label fw-semibold">{{ form.verif_distinguishing.label }}</label>{{ form.verif_distinguishing }}</div>
-          <div class="col-12"><label class="form-label fw-semibold">{{ form.verif_secret.label }}</label>{{ form.verif_secret }}</div>
+        <div class="grid grid-2">
+          <div class="form-group"><label class="form-label">Item Photo</label>{{ form.image }}</div>
+          <div class="form-group"><label class="form-label">Contact Email</label>{{ form.contact_email }}</div>
+          <div class="form-group"><label class="form-label">Contact Phone</label>{{ form.contact_phone }}</div>
         </div>
 
-        <div class="row g-3 mt-1">
-          <div class="col-md-6"><label class="form-label fw-semibold">Item Photo (optional)</label>{{ form.image }}</div>
-          <div class="col-md-6"><label class="form-label fw-semibold">Contact Email</label>{{ form.contact_email }}</div>
-          <div class="col-md-6"><label class="form-label fw-semibold">Contact Phone</label>{{ form.contact_phone }}</div>
-        </div>
-
-        <div class="d-flex gap-3 mt-4">
-          <button type="submit" class="btn btn-success px-4 fw-bold"><i class="fas fa-paper-plane me-2"></i>Submit Found Report</button>
-          <a href="{% url 'home' %}" class="btn btn-outline-secondary">Cancel</a>
+        <div style="display:flex;gap:1rem;">
+          <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> Submit Found Report</button>
+          <a href="{% url 'home' %}" class="btn btn-outline">Cancel</a>
         </div>
       </form>
     </div>

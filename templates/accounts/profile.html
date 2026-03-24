@@ -1,26 +1,31 @@
 {% extends 'base.html' %}
-{% block title %}Profile — Campus Lost & Found{% endblock %}
+{% block title %}Profile — Campus L&F{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-7">
-    <div class="card p-4">
-      <h4 class="fw-bold mb-4"><i class="fas fa-user-cog text-primary me-2"></i>My Profile</h4>
-      <div class="mb-3 p-3 rounded-3" style="background:#f1f5f9;">
-        <span class="badge bg-primary me-2">{{ user.get_role_display }}</span>
-        {% if user.student_id %}<span class="badge bg-secondary">ID: {{ user.student_id }}</span>{% endif %}
-      </div>
+<div style="max-width:600px;margin:0 auto;" class="animate-up">
+  <div class="section-head mb-3">
+    <div>
+      <div class="section-title">My Profile</div>
+      <div class="section-sub">Update your account details</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="badge badge-primary">{{ user.get_role_display }}</span>
+      {% if user.student_id %}<span class="badge badge-muted">ID: {{ user.student_id }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="row g-3">
+        <div class="grid grid-2">
           {% for field in form %}
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">{{ field.label }}</label>
+          <div class="form-group">
+            <label class="form-label">{{ field.label }}</label>
             {{ field }}
-            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+            {% if field.errors %}<div class="form-text text-danger">{{ field.errors }}</div>{% endif %}
           </div>
           {% endfor %}
         </div>
-        <button type="submit" class="btn btn-primary mt-4 px-4 fw-bold">Save Changes</button>
+        <button type="submit" class="btn btn-primary mt-2"><i class="fas fa-save"></i> Save Changes</button>
       </form>
     </div>
   </div>
