@@ -103,8 +103,152 @@ def find_potential_matches(item, item_type='lost'):
     return matches
 
 
+def compare_verification_answers(lost_item, found_item):
+    """
+    Compare the verification answers between the lost item reporter
+    and the found item finder. Returns a dict with results and a
+    confidence score 0-100.
+    """
+    results = {
+        'color': None,
+        'distinguishing': None,
+        'secret': None,
+        'confidence': 0,
+        'answered_count': 0,
+        'matched_count': 0,
+    }
+
+    def similarity(a, b):
+        """Check if two answers are meaningfully similar."""
+        if not a or not b:
+            return None
+        a = a.lower().strip()
+        b = b.lower().strip()
+        # Exact or near-exact match
+        if a == b:
+            return True
+        # Word overlap — if more than 50% of words match it counts
+        a_words = set(a.split())
+        b_words = set(b.split())
+        if not a_words or not b_words:
+            return None
+        overlap = len(a_words & b_words) / max(len(a_words), len(b_words))
+        return overlap >= 0.5
+
+    checks = [
+        ('color', lost_item.verif_color, found_item.verif_color),
+        ('distinguishing', lost_item.verif_distinguishing, found_item.verif_distinguishing),
+        ('secret', lost_item.verif_secret, found_item.verif_secret),
+    ]
+
+    answered = 0
+    matched = 0
+
+    for key, lost_ans, found_ans in checks:
+        result = similarity(lost_ans, found_ans)
+        results[key] = result
+        if result is not None:
+            answered += 1
+            if result:
+                matched += 1
+
+    results['answered_count'] = answered
+    results['matched_count'] = matched
+
+    # Confidence score based on how many checks passed
+    if answered == 0:
+        results['confidence'] = 0
+    else:
+        results['confidence'] = int((matched / answered) * 100)
+
+    return results
+
+
+def auto_verify_match(match):
+    """
+    Core auto-verification engine.
+
+    Decision logic:
+    - LOW fraud risk + HIGH verification confidence (>=67%) → AUTO-APPROVE
+    - HIGH fraud risk (any) → ESCALATE to admin, never auto-approve
+    - MEDIUM fraud risk → ESCALATE to admin
+    - LOW fraud risk + LOW confidence → ESCALATE to admin
+    - No verification answers provided at all → ESCALATE to admin
+
+    Returns: 'approved' | 'escalated'
+    """
+    from django.utils import timezone
+    from accounts.models import User
+    from django.db.models import Q
+
+    lost_item = match.lost_item
+    found_item = match.found_item
+
+    # Step 1 — Run verification answer comparison
+    verif = compare_verification_answers(lost_item, found_item)
+
+    # Store results on the match
+    match.verif_color_match = verif['color']
+    match.verif_distinguishing_match = verif['distinguishing']
+    match.verif_secret_match = verif['secret']
+
+    # Step 2 — Decision tree
+    fraud_risk = match.fraud_risk
+    confidence = verif['confidence']
+    answered = verif['answered_count']
+
+    auto_approved = False
+    reason = ''
+
+    if fraud_risk == 'high':
+        reason = '🚨 High fraud risk detected — requires manual admin review'
+
+    elif fraud_risk == 'medium':
+        reason = '⚠️ Medium fraud risk detected — requires manual admin review'
+
+    elif answered == 0:
+        reason = '⚠️ No verification answers provided by either party — requires manual review'
+
+    elif confidence >= 67:
+        # All clear — auto approve
+        auto_approved = True
+        reason = f'✅ Auto-approved: {verif["matched_count"]}/{answered} verification checks passed ({confidence}% confidence), fraud risk is low'
+
+    else:
+        reason = f'⚠️ Verification confidence too low ({confidence}%) — {verif["matched_count"]}/{answered} checks passed — requires manual review'
+
+    # Step 3 — Apply decision
+    match.admin_verif_notes = reason
+
+    if auto_approved:
+        match.status = 'approved'
+        match.reviewed_at = timezone.now()
+        match.reviewed_by = None  # system-approved
+        match.save()
+
+        # Update item statuses
+        lost_item.status = 'matched'
+        lost_item.save()
+        found_item.status = 'matched'
+        found_item.save()
+
+        # Notify both parties with full contact details
+        notify_match_approved(match)
+        return 'approved'
+
+    else:
+        # Escalate to admin
+        match.save()
+        admins = User.objects.filter(Q(role='admin') | Q(is_staff=True))
+        notify_fraud_alert(match, admins)
+        # Still notify both parties that a match is under review
+        notify_match_parties(match)
+        return 'escalated'
+
+
 def create_match(lost_item, found_item, matched_by, score=0, notes=''):
     from .models import ItemMatch, FoundItemView
+
     # Check if reporter viewed this found item before reporting
     viewed_before = False
     if lost_item.created_at:
@@ -128,6 +272,11 @@ def create_match(lost_item, found_item, matched_by, score=0, notes=''):
             'reporter_viewed_found_before_reporting': viewed_before,
         }
     )
+
+    # Run auto-verification immediately after creating the match
+    if created:
+        auto_verify_match(match)
+
     return match, created
 
 

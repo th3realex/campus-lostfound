@@ -48,19 +48,24 @@ def report_lost(request):
             item.contact_email = item.contact_email or request.user.email
             item.save()
             potential = find_potential_matches(item, 'lost')
-            match_count = 0
+            auto_approved = 0
+            escalated = 0
             for found_item, score in potential[:3]:
                 match, created = create_match(item, found_item, request.user, score)
                 if created:
-                    notify_match_parties(match)
-                    # Alert admins if high risk
-                    if match.fraud_risk == 'high':
-                        from accounts.models import User
-                        admins = User.objects.filter(Q(role='admin') | Q(is_staff=True))
-                        notify_fraud_alert(match, admins)
-                    match_count += 1
-            if match_count:
-                messages.success(request, f'Lost item reported! {match_count} potential match(es) found — admin will verify and notify you.')
+                    if match.status == 'approved':
+                        auto_approved += 1
+                    else:
+                        escalated += 1
+                        if match.fraud_risk == 'high':
+                            from accounts.models import User
+                            admins = User.objects.filter(Q(role='admin') | Q(is_staff=True))
+                            notify_fraud_alert(match, admins)
+
+            if auto_approved:
+                messages.success(request, f'Lost item reported! A match was found and automatically verified — check your notifications for contact details.')
+            elif escalated:
+                messages.success(request, f'Lost item reported! A potential match was found and is under review — you will be notified shortly.')
             else:
                 messages.success(request, 'Lost item reported! We will notify you when a match is found.')
             return redirect('lost_item_detail', pk=item.pk)
@@ -79,15 +84,26 @@ def report_found(request):
             item.contact_email = item.contact_email or request.user.email
             item.save()
             potential = find_potential_matches(item, 'found')
+            auto_approved = 0
+            escalated = 0
             for lost_item, score in potential[:3]:
                 match, created = create_match(lost_item, item, request.user, score)
                 if created:
-                    notify_match_parties(match)
-                    if match.fraud_risk == 'high':
-                        from accounts.models import User
-                        admins = User.objects.filter(Q(role='admin') | Q(is_staff=True))
-                        notify_fraud_alert(match, admins)
-            messages.success(request, 'Found item reported! Thank you for your honesty. Admin will verify any matches.')
+                    if match.status == 'approved':
+                        auto_approved += 1
+                    else:
+                        escalated += 1
+                        if match.fraud_risk == 'high':
+                            from accounts.models import User
+                            admins = User.objects.filter(Q(role='admin') | Q(is_staff=True))
+                            notify_fraud_alert(match, admins)
+
+            if auto_approved:
+                messages.success(request, 'Found item reported! A match was automatically verified — the owner has been notified.')
+            elif escalated:
+                messages.success(request, 'Found item reported! A potential match is under review — both parties will be notified shortly.')
+            else:
+                messages.success(request, 'Found item reported! Thank you for your honesty. We will notify you when a match is found.')
             return redirect('found_item_detail', pk=item.pk)
     else:
         form = FoundItemForm()
@@ -178,12 +194,14 @@ def admin_dashboard(request):
     pending_matches = ItemMatch.objects.filter(status='pending')
     high_risk = ItemMatch.objects.filter(status='pending', fraud_risk='high')
     approved_matches = ItemMatch.objects.filter(status='approved')
+    auto_approved = ItemMatch.objects.filter(status='approved', reviewed_by=None)
     all_lost = LostItem.objects.all()
     all_found = FoundItem.objects.all()
     return render(request, 'items/admin_dashboard.html', {
         'pending_matches': pending_matches,
         'high_risk': high_risk,
         'approved_matches': approved_matches,
+        'auto_approved': auto_approved,
         'all_lost': all_lost,
         'all_found': all_found,
     })
