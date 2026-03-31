@@ -31,10 +31,39 @@ def home(request):
         'total_resolved': ItemMatch.objects.filter(status='completed').count(),
         'pending_matches': ItemMatch.objects.filter(status='pending').count(),
     }
+
+    # User dashboard data
+    user_stats = {}
+    recent_notifications = []
+    user_matches = []
+
+    if request.user.is_authenticated:
+        user_stats = {
+            'my_lost': LostItem.objects.filter(reporter=request.user).count(),
+            'my_found': FoundItem.objects.filter(finder=request.user).count(),
+            'my_matches': ItemMatch.objects.filter(
+                lost_item__reporter=request.user
+            ).count() + ItemMatch.objects.filter(
+                found_item__finder=request.user
+            ).count(),
+            'my_resolved': ItemMatch.objects.filter(
+                lost_item__reporter=request.user, status='completed'
+            ).count(),
+        }
+        recent_notifications = Notification.objects.filter(
+            recipient=request.user
+        )[:5]
+        user_matches = ItemMatch.objects.filter(
+            lost_item__reporter=request.user
+        ).select_related('lost_item', 'found_item')[:3]
+
     return render(request, 'items/home.html', {
         'recent_lost': recent_lost,
         'recent_found': recent_found,
         'stats': stats,
+        'user_stats': user_stats,
+        'recent_notifications': recent_notifications,
+        'user_matches': user_matches,
     })
 
 
