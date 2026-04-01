@@ -49,7 +49,7 @@
 }
 
 .step-card{
-  background:white;border:1.5px solid var(--border);border-radius:var(--radius);
+  background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);
   padding:1.25rem;display:flex;gap:14px;align-items:flex-start;
   transition:var(--transition);
 }
@@ -63,198 +63,121 @@
 
 <!-- ═══════ AUTHENTICATED DASHBOARD ═══════ -->
 
-<!-- Top welcome strip -->
-<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.75rem;" class="animate-up">
+<!-- Hero-style Top Welcome Banner -->
+<div class="animate-up" style="background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:var(--radius);padding:2.5rem;color:white;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;box-shadow:0 12px 30px var(--accent-glow);">
   <div>
-    <h2 style="font-weight:800;font-size:1.5rem;margin-bottom:2px;">Hey, {{ user.first_name|default:user.username }} 👋</h2>
-    <div class="small text-muted"><span style="display:inline-block;width:7px;height:7px;background:var(--success);border-radius:50%;margin-right:6px;animation:pulse2 2s infinite;"></span>UNI-TRACK is live — smart matching active</div>
+    <h2 style="font-weight:800;font-size:2rem;margin-bottom:.5rem;">Hey, {{ user.first_name|default:user.username }} 👋</h2>
+    <p style="color:rgba(255,255,255,0.85);margin-bottom:0;font-size:1.05rem;">Welcome back. UNI-TRACK smart matching is active.</p>
   </div>
-  <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-    <a href="{% url 'report_lost' %}" class="btn btn-danger btn-sm"><i class="fas fa-minus-circle"></i> Report Lost</a>
-    <a href="{% url 'report_found' %}" class="btn btn-success btn-sm"><i class="fas fa-plus-circle"></i> Report Found</a>
-    <a href="{% url 'notifications' %}" class="btn btn-outline btn-sm"><i class="fas fa-bell"></i> Notifications</a>
+  <div style="display:flex;gap:1rem;">
+    <a href="{% url 'report_lost' %}" class="btn" style="background:var(--surface);color:var(--primary);font-weight:700;"><i class="fas fa-minus-circle" style="color:var(--danger)"></i> Report Lost</a>
+    <a href="{% url 'report_found' %}" class="btn" style="background:rgba(255,255,255,0.2);color:white;font-weight:700;backdrop-filter:blur(10px);"><i class="fas fa-plus-circle" style="color:var(--success)"></i> Report Found</a>
   </div>
 </div>
 
-<!-- ROW 1: My Stats (4 mini cards) + Notification Panel -->
-<div style="display:grid;grid-template-columns:1fr 340px;gap:1.25rem;margin-bottom:1.25rem;" class="animate-up">
+<!-- ROW 1: Platform Stats Overview -->
+<div class="grid grid-4 mb-3 animate-up" style="animation-delay:.1s">
+  <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-number text-primary">{{ stats.total_lost }}</div><div class="stat-label">Total Lost on Campus</div></div>
+  <div class="stat-card orange"><div class="stat-icon"><i class="fas fa-hand-holding"></i></div><div class="stat-number" style="color:var(--warning);">{{ stats.total_found }}</div><div class="stat-label">Total Found on Campus</div></div>
+  <div class="stat-card green"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-number text-success">{{ stats.total_resolved }}</div><div class="stat-label">Successfully Returned</div></div>
+  <div class="stat-card purple"><div class="stat-icon"><i class="fas fa-link"></i></div><div class="stat-number text-purple">{{ user_stats.my_matches }}</div><div class="stat-label">Your Active Matches</div></div>
+</div>
 
-  <!-- Left: my stats + quick actions -->
-  <div style="display:flex;flex-direction:column;gap:1.25rem;">
+<!-- ROW 2: Layout 2.5fr 1fr -->
+<div style="display:grid;grid-template-columns:2.5fr 1fr;gap:1.5rem;margin-bottom:1.5rem;" class="animate-up" style="animation-delay:.2s">
 
-    <!-- Mini stats row -->
-    <div class="grid grid-4">
-      <div class="stat-mini">
-        <div class="stat-mini-icon" style="background:var(--danger-light);color:var(--danger);"><i class="fas fa-exclamation-triangle"></i></div>
-        <div><div class="stat-mini-val text-danger">{{ user_stats.my_lost }}</div><div class="stat-mini-label">Lost Reports</div></div>
-      </div>
-      <div class="stat-mini">
-        <div class="stat-mini-icon" style="background:var(--success-light);color:var(--success);"><i class="fas fa-hand-holding"></i></div>
-        <div><div class="stat-mini-val text-success">{{ user_stats.my_found }}</div><div class="stat-mini-label">Found Reports</div></div>
-      </div>
-      <div class="stat-mini">
-        <div class="stat-mini-icon" style="background:var(--primary-light);color:var(--primary);"><i class="fas fa-link"></i></div>
-        <div><div class="stat-mini-val text-primary">{{ user_stats.my_matches }}</div><div class="stat-mini-label">Matches</div></div>
-      </div>
-      <div class="stat-mini">
-        <div class="stat-mini-icon" style="background:var(--warning-light);color:var(--warning);"><i class="fas fa-check-circle"></i></div>
-        <div><div class="stat-mini-val" style="color:var(--warning);">{{ user_stats.my_resolved }}</div><div class="stat-mini-label">Resolved</div></div>
-      </div>
-    </div>
-
-    <!-- Quick actions -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;">
-      <a href="{% url 'report_lost' %}" class="quick-btn" style="background:var(--danger-light);border-color:rgba(224,50,85,0.2);">
-        <div class="qb-icon" style="background:var(--danger);color:white;"><i class="fas fa-minus-circle"></i></div>
-        <div class="qb-label" style="color:var(--danger);">Report Lost</div>
-        <div class="qb-sub" style="color:var(--danger);">File a lost item report</div>
-      </a>
-      <a href="{% url 'report_found' %}" class="quick-btn" style="background:var(--success-light);border-color:rgba(24,169,111,0.2);">
-        <div class="qb-icon" style="background:var(--success);color:white;"><i class="fas fa-plus-circle"></i></div>
-        <div class="qb-label" style="color:var(--success);">Report Found</div>
-        <div class="qb-sub" style="color:var(--success);">Hand in a found item</div>
-      </a>
-      <a href="{% url 'found_items' %}" class="quick-btn" style="background:var(--primary-light);border-color:rgba(59,111,240,0.2);">
+  <!-- Left: My Dashboard & Active Matches -->
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+    
+    <!-- Quick actions (3 columns) -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+      <a href="{% url 'found_items' %}" class="quick-btn" style="background:var(--primary-light);border-color:rgba(2, 132, 199,0.2);">
         <div class="qb-icon" style="background:var(--primary);color:white;"><i class="fas fa-search"></i></div>
         <div class="qb-label" style="color:var(--primary);">Browse Found</div>
-        <div class="qb-sub" style="color:var(--primary);">Check if your item is here</div>
       </a>
-      <a href="{% url 'my_items' %}" class="quick-btn" style="background:var(--purple-light);border-color:rgba(124,77,255,0.2);">
+      <a href="{% url 'my_items' %}" class="quick-btn" style="background:var(--purple-light);border-color:rgba(79, 70, 229,0.2);">
         <div class="qb-icon" style="background:var(--purple);color:white;"><i class="fas fa-list"></i></div>
         <div class="qb-label" style="color:var(--purple);">My Items</div>
-        <div class="qb-sub" style="color:var(--purple);">View all your reports</div>
+      </a>
+      <a href="{% url 'profile' %}" class="quick-btn" style="background:var(--teal-light);border-color:rgba(13, 148, 136,0.2);">
+        <div class="qb-icon" style="background:var(--teal);color:white;"><i class="fas fa-user-cog"></i></div>
+        <div class="qb-label" style="color:var(--teal);">Profile</div>
       </a>
     </div>
-  </div>
 
-  <!-- Right: Notification Panel -->
-  <div class="card" style="border-top:3px solid var(--primary);">
-    <div class="card-body" style="padding:1.25rem;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:30px;height:30px;background:var(--primary-light);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:.9rem;"><i class="fas fa-bell"></i></div>
-          <span style="font-weight:700;font-size:.95rem;">Notifications</span>
-        </div>
-        <a href="{% url 'notifications' %}" class="btn btn-outline btn-sm" style="font-size:.75rem;padding:5px 10px;">See All</a>
-      </div>
-      {% if recent_notifications %}
-        {% for notif in recent_notifications %}
-        <a href="{% url 'notifications' %}" class="notif-pill" style="display:flex;">
-          {% if not notif.is_read %}<div class="notif-unread-bar"></div>{% endif %}
-          <div class="notif-icon
-            {% if notif.notification_type == 'match_approved' %}" style="background:var(--success-light);color:var(--success);"><i class="fas fa-check-circle"></i>
-            {% elif notif.notification_type == 'match_found' %}" style="background:var(--warning-light);color:var(--warning);"><i class="fas fa-link"></i>
-            {% elif notif.notification_type == 'match_rejected' %}" style="background:var(--danger-light);color:var(--danger);"><i class="fas fa-times-circle"></i>
-            {% else %}" style="background:var(--primary-light);color:var(--primary);"><i class="fas fa-info-circle"></i>
-            {% endif %}
-          </div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:.82rem;font-weight:600;margin-bottom:1px;" class="truncate">{{ notif.title }}</div>
-            <div class="small text-muted truncate">{{ notif.message|truncatechars:55 }}</div>
-            <div style="font-size:.7rem;color:var(--text-dim);margin-top:2px;">{{ notif.created_at|date:"M d, H:i" }}</div>
-          </div>
-        </a>
-        {% endfor %}
-      {% else %}
-        <div style="text-align:center;padding:1.5rem 0;color:var(--text-muted);">
-          <i class="fas fa-bell-slash" style="font-size:1.4rem;opacity:.25;display:block;margin-bottom:8px;"></i>
-          <div class="small">No notifications yet</div>
-        </div>
-      {% endif %}
-    </div>
-  </div>
-</div>
-
-<!-- ROW 2: Active matches + Platform stats -->
-<div style="display:grid;grid-template-columns:1fr 340px;gap:1.25rem;margin-bottom:1.25rem;" class="animate-up">
-
-  <!-- Active Matches -->
-  <div class="card">
-    <div class="card-body">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:30px;height:30px;background:var(--purple-light);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--purple);"><i class="fas fa-link"></i></div>
-          <span style="font-weight:700;">My Active Matches</span>
-        </div>
-        <a href="{% url 'my_items' %}" class="btn btn-outline btn-sm" style="font-size:.75rem;padding:5px 10px;">View All</a>
-      </div>
-      {% if user_matches %}
-        {% for match in user_matches %}
-        <a href="{% url 'match_detail' match.pk %}" class="match-chip" style="margin-bottom:.5rem;display:flex;">
-          <div style="flex:1;min-width:0;">
-            <div style="font-weight:600;font-size:.875rem;margin-bottom:3px;" class="truncate">{{ match.lost_item.title }}</div>
-            <div class="small text-muted truncate">↔ {{ match.found_item.title }}</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-            <div style="text-align:right;">
-              <div class="score-bar" style="width:55px;margin-bottom:3px;"><div class="score-fill" style="width:{{ match.match_score }}%;"></div></div>
-              <div style="font-size:.68rem;color:var(--text-dim);">{{ match.match_score }}%</div>
-            </div>
-            <span class="badge {% if match.status == 'completed' %}badge-success{% elif match.status == 'approved' %}badge-primary{% elif match.status == 'pending' %}badge-warning{% else %}badge-danger{% endif %}">{{ match.get_status_display }}</span>
-          </div>
-        </a>
-        {% endfor %}
-      {% else %}
-        <div class="empty-state" style="padding:2rem 0;">
-          <i class="fas fa-link" style="font-size:1.8rem;"></i>
-          <h5 style="font-size:.95rem;">No active matches yet</h5>
-          <p class="small">Report a lost item to start the matching process</p>
-        </div>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- Platform stats sidebar -->
-  <div style="display:flex;flex-direction:column;gap:1rem;">
-    <!-- Profile card -->
-    <div class="card card-blue">
-      <div class="card-body" style="padding:1.25rem;">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:46px;height:46px;background:linear-gradient(135deg,var(--primary),var(--purple));border-radius:14px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1rem;flex-shrink:0;">{{ user.first_name.0|upper }}{{ user.last_name.0|upper }}</div>
-          <div style="min-width:0;">
-            <div style="font-weight:700;" class="truncate">{{ user.get_full_name|default:user.username }}</div>
-            <div class="small" style="color:var(--primary);">{{ user.get_role_display }}</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:.5rem;margin-top:1rem;">
-          <a href="{% url 'my_items' %}" class="btn btn-primary btn-sm" style="flex:1;justify-content:center;font-size:.78rem;">My Items</a>
-          <a href="{% url 'profile' %}" class="btn btn-outline btn-sm" style="flex:1;justify-content:center;font-size:.78rem;">Profile</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Platform overview -->
+    <!-- Active Matches -->
     <div class="card">
-      <div class="card-body" style="padding:1.25rem;">
-        <div class="small fw-bold text-muted" style="text-transform:uppercase;letter-spacing:.5px;margin-bottom:.875rem;">Campus Overview</div>
-        <div style="display:flex;flex-direction:column;gap:.625rem;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span class="small text-muted"><i class="fas fa-exclamation-triangle text-danger" style="margin-right:7px;width:14px;"></i>Total Lost</span>
-            <strong>{{ stats.total_lost }}</strong>
+      <div class="card-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:30px;height:30px;background:var(--purple-light);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--purple);"><i class="fas fa-link"></i></div>
+            <span style="font-weight:700;">My Active Matches</span>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span class="small text-muted"><i class="fas fa-hand-holding text-success" style="margin-right:7px;width:14px;"></i>Total Found</span>
-            <strong>{{ stats.total_found }}</strong>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span class="small text-muted"><i class="fas fa-check-circle text-primary" style="margin-right:7px;width:14px;"></i>Returned</span>
-            <strong>{{ stats.total_resolved }}</strong>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span class="small text-muted"><i class="fas fa-clock text-warning" style="margin-right:7px;width:14px;"></i>Pending</span>
-            <strong>{{ stats.pending_matches }}</strong>
-          </div>
-          {% if stats.total_lost > 0 %}
-          <div class="divider" style="margin:.25rem 0;"></div>
-          <div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-              <span class="small text-muted">Return rate</span>
-              <span class="small text-success fw-bold">{% widthratio stats.total_resolved stats.total_lost 100 %}%</span>
-            </div>
-            <div class="score-bar" style="height:8px;"><div class="score-fill" style="width:{% widthratio stats.total_resolved stats.total_lost 100 %}%;background:linear-gradient(90deg,var(--success),#5de0a8);"></div></div>
-          </div>
-          {% endif %}
+          <a href="{% url 'my_items' %}" class="btn btn-outline btn-sm" style="font-size:.75rem;padding:5px 10px;">View All</a>
         </div>
+        {% if user_matches %}
+          {% for match in user_matches %}
+          <a href="{% url 'match_detail' match.pk %}" class="match-chip" style="margin-bottom:.5rem;display:flex;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:600;font-size:.875rem;margin-bottom:3px;" class="truncate">{{ match.lost_item.title }}</div>
+              <div class="small text-muted truncate">↔ {{ match.found_item.title }}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+              <div style="text-align:right;">
+                <div class="score-bar" style="width:55px;margin-bottom:3px;"><div class="score-fill" style="width:{{ match.match_score }}%;"></div></div>
+                <div style="font-size:.68rem;color:var(--text-dim);">{{ match.match_score }}%</div>
+              </div>
+              <span class="badge {% if match.status == 'completed' %}badge-success{% elif match.status == 'approved' %}badge-primary{% elif match.status == 'pending' %}badge-warning{% else %}badge-danger{% endif %}">{{ match.get_status_display }}</span>
+            </div>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state" style="padding:2rem 0;">
+            <i class="fas fa-link" style="font-size:1.8rem;"></i>
+            <h5 style="font-size:.95rem;">No active matches yet</h5>
+            <p class="small">Report a lost item to start the matching process</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Notifications Sidebar -->
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+    <!-- Notification Panel -->
+    <div class="card" style="border-top:3px solid var(--primary);height:100%;">
+      <div class="card-body" style="padding:1.25rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:30px;height:30px;background:var(--primary-light);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:.9rem;"><i class="fas fa-bell"></i></div>
+            <span style="font-weight:700;font-size:.95rem;">Notifications</span>
+          </div>
+          <a href="{% url 'notifications' %}" class="btn btn-outline btn-sm" style="font-size:.75rem;padding:5px 10px;">See All</a>
+        </div>
+        {% if recent_notifications %}
+          {% for notif in recent_notifications %}
+          <a href="{% url 'notifications' %}" class="notif-pill" style="display:flex;">
+            {% if not notif.is_read %}<div class="notif-unread-bar"></div>{% endif %}
+            <div class="notif-icon
+              {% if notif.notification_type == 'match_approved' %}" style="background:var(--success-light);color:var(--success);"><i class="fas fa-check-circle"></i>
+              {% elif notif.notification_type == 'match_found' %}" style="background:var(--warning-light);color:var(--warning);"><i class="fas fa-link"></i>
+              {% elif notif.notification_type == 'match_rejected' %}" style="background:var(--danger-light);color:var(--danger);"><i class="fas fa-times-circle"></i>
+              {% else %}" style="background:var(--primary-light);color:var(--primary);"><i class="fas fa-info-circle"></i>
+              {% endif %}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:.82rem;font-weight:600;margin-bottom:1px;" class="truncate">{{ notif.title }}</div>
+              <div class="small text-muted truncate">{{ notif.message|truncatechars:55 }}</div>
+              <div style="font-size:.7rem;color:var(--text-dim);margin-top:2px;">{{ notif.created_at|date:"M d, H:i" }}</div>
+            </div>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div style="text-align:center;padding:1.5rem 0;color:var(--text-muted);">
+            <i class="fas fa-bell-slash" style="font-size:1.4rem;opacity:.25;display:block;margin-bottom:8px;"></i>
+            <div class="small">No notifications yet</div>
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -348,7 +271,7 @@
   </div>
   <h1 style="font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.1;margin-bottom:.875rem;letter-spacing:-1px;">
     Lost something on<br>
-    <span style="background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">campus?</span>
+    <span style="background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">campus?</span>
   </h1>
   <p style="font-size:1.2rem;font-weight:600;color:var(--text);margin-bottom:.5rem;">No worries — we help you find your items. 🎒</p>
   <p style="font-size:.975rem;color:var(--text-muted);max-width:480px;margin:0 auto 2rem;line-height:1.7;">UNI-TRACK connects students and staff through a smart matching system. Report a lost or found item and we'll handle the rest — automatically.</p>
@@ -428,10 +351,10 @@
 </div>
 
 <!-- CTA Banner -->
-<div class="animate-up" style="background:linear-gradient(135deg,var(--primary),var(--purple));border-radius:var(--radius);padding:2.5rem;text-align:center;margin-bottom:1rem;">
+<div class="animate-up" style="background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:var(--radius);padding:2.5rem;text-align:center;margin-bottom:1rem;box-shadow:0 12px 30px var(--accent-glow);">
   <h3 style="font-weight:800;color:white;margin-bottom:.5rem;">Ready to find your item?</h3>
   <p style="color:rgba(255,255,255,0.8);margin-bottom:1.5rem;">Join students and staff already using UNI-TRACK on campus.</p>
-  <a href="{% url 'register' %}" class="btn btn-lg" style="background:white;color:var(--primary);font-weight:700;"><i class="fas fa-user-plus"></i> Create Free Account</a>
+  <a href="{% url 'register' %}" class="btn btn-lg" style="background:var(--surface);color:var(--primary);font-weight:700;"><i class="fas fa-user-plus"></i> Create Free Account</a>
 </div>
 
 {% endif %}
