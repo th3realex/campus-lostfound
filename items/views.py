@@ -92,7 +92,7 @@ def report_lost(request):
                             notify_fraud_alert(match, admins)
 
             if auto_approved:
-                messages.success(request, f'Lost item reported! A match was found and automatically verified — check your notifications for contact details.')
+                messages.success(request, f'Lost item reported! A match was found, verified, and completed automatically — check your notifications for the finder contact details.')
             elif escalated:
                 messages.success(request, f'Lost item reported! A potential match was found and is under review — you will be notified shortly.')
             else:
@@ -223,7 +223,7 @@ def admin_dashboard(request):
     pending_matches = ItemMatch.objects.filter(status='pending')
     high_risk = ItemMatch.objects.filter(status='pending', fraud_risk='high')
     approved_matches = ItemMatch.objects.filter(status='approved')
-    auto_approved = ItemMatch.objects.filter(status='approved', reviewed_by=None)
+    auto_approved = ItemMatch.objects.filter(status='completed', reviewed_by=None)
     all_lost = LostItem.objects.all()
     all_found = FoundItem.objects.all()
     return render(request, 'items/admin_dashboard.html', {

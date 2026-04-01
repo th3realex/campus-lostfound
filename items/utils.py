@@ -221,20 +221,21 @@ def auto_verify_match(match):
     match.admin_verif_notes = reason
 
     if auto_approved:
-        match.status = 'approved'
+        # Auto-approve AND auto-complete — no admin action needed
+        match.status = 'completed'
         match.reviewed_at = timezone.now()
-        match.reviewed_by = None  # system-approved
+        match.reviewed_by = None  # system-completed
         match.save()
 
-        # Update item statuses
-        lost_item.status = 'matched'
+        # Close both items as resolved/returned
+        lost_item.status = 'resolved'
         lost_item.save()
-        found_item.status = 'matched'
+        found_item.status = 'returned'
         found_item.save()
 
-        # Notify both parties with full contact details
+        # Notify both parties with full contact details immediately
         notify_match_approved(match)
-        return 'approved'
+        return 'completed'
 
     else:
         # Escalate to admin
